@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&family=Plus+Jakarta+Sans:wght@700;800&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg-dark: #141210;       /* Groovy dark chocolate */
+  --bg-panel: #201D1A;      /* Warm card background */
+  --bg-inner: #2B2723;      /* Deep inner background */
+  --text-light: #FBF9F6;    /* Soft retro cream text */
+  --text-muted: #B8B0A5;    /* Warm beige-grey */
+  --border-color: #FBF9F6;  /* High contrast borders */
+  
+  /* Groovy '68 Accent Colors */
+  --accent-yellow: #FFD151; /* Mustard Yellow */
+  --accent-orange: #FF6F59; /* Retro Coral Orange */
+  --accent-teal: #2EC4B6;   /* Acid Turquoise/Teal */
+  --accent-purple: #B5179E; /* Groovy Violet */
+  --accent-sage: #95D5B2;   /* Vintage Green */
+
+  --shadow-color: #000000;
+  --border-thick: 3px solid var(--border-color);
+  --box-shadow-flat: 5px 5px 0px var(--shadow-color);
+  --box-shadow-hover: 9px 9px 0px var(--shadow-color);
+  
+  font-family: 'Outfit', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+              box-shadow 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              background-color 0.2s ease,
+              border-color 0.2s ease;
+}
+
+body {
+  overflow-x: hidden;
+  background-color: var(--bg-dark);
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+  border-left: var(--border-thick);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border: 2px solid var(--bg-dark);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-yellow);
+}
+
+/* Base Styles */
+h1, h2, h3, .font-groovy {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+}
+
+/* Neo-Brutalist Layouts */
+.neo-card {
+  background-color: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 20px;
+  box-shadow: var(--box-shadow-flat);
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.neo-card:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+.neo-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-decoration: none;
+  color: #000;
+  background-color: var(--accent-yellow);
+  border: var(--border-thick);
+  border-radius: 50px;
+  box-shadow: var(--box-shadow-flat);
+  cursor: pointer;
+}
+
+.neo-button:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 6px 6px 0px var(--shadow-color);
+  background-color: var(--accent-orange);
+}
+
+.neo-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+/* Colorful pill links */
+.neo-pill {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #000;
+  background-color: var(--accent-teal);
+  border: 2px solid var(--border-color);
+  border-radius: 50px;
+  box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+/* Groovy Layout Decoration */
+.peace-wave {
+  height: 15px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--accent-yellow),
+    var(--accent-yellow) 10px,
+    var(--accent-orange) 10px,
+    var(--accent-orange) 20px,
+    var(--accent-teal) 20px,
+    var(--accent-teal) 30px
+  );
+  border-bottom: var(--border-thick);
+}
+
+/* Helper styles */
+.text-mono {
+  font-family: 'Space Mono', monospace;
+}
+
+/* Custom form fields */
+.neo-input, .neo-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: var(--bg-inner);
+  border: var(--border-thick);
+  border-radius: 12px;
+  color: var(--text-light);
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  outline: none;
+}
+
+.neo-input:focus, .neo-textarea:focus {
+  border-color: var(--accent-yellow);
+  box-shadow: 3px 3px 0px var(--shadow-color);
+}
+
+/* Active status indicator */
+.status-pill {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: var(--accent-teal);
+  border: 1px solid #000;
+}

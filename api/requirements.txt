@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pydantic
+requests
+markdown
+jinja2
+python-multipart

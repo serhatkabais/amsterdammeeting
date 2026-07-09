@@ -1,0 +1,48 @@
+# Node.js
+node_modules/
+dist/
+dist-ssr
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Large Source Documents
+Kaynaklar/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Databases / Data (Excluding metadata config if any, but we want to ignore state JSON files)
+backend/data/*.json
+!backend/data/companies_data.json
+# Wait! Do we want to ignore companies_data.json?
+# The user wants to keep companies_data.json committed if it has the base company list,
+# but the live updates are on Firebase. So let's keep it tracked as initial data,
+# but ignore live changes. Actually, let's keep all JSON files in git as fallback/starter files,
+# but to avoid local overwriting we can just commit them once. 
+# Better: let's track the JSON files but ignore .env files and environment specific configurations.
+# Let's definitely ignore .env files!
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -308,6 +308,80 @@ const CompanyLogo = ({ domain, name, size = 56 }) => {
   );
 };
 
+
+const CalendarView = ({ trackerData, companies, onSelectCompany }) => {
+  const days = [
+    { date: '2026-07-17', label: '17 Tem Cuma' },
+    { date: '2026-07-18', label: '18 Tem Cmt' },
+    { date: '2026-07-19', label: '19 Tem Pzr' },
+    { date: '2026-07-20', label: '20 Tem Pzt' },
+    { date: '2026-07-21', label: '21 Tem Sal' },
+    { date: '2026-07-22', label: '22 Tem Çar' },
+    { date: '2026-07-23', label: '23 Tem Per' },
+    { date: '2026-07-24', label: '24 Tem Cum' },
+    { date: '2026-07-25', label: '25 Tem Cmt' },
+    { date: '2026-07-26', label: '26 Tem Pzr' },
+    { date: '2026-07-27', label: '27 Tem Pzt' },
+    { date: '2026-07-28', label: '28 Tem Sal' },
+    { date: '2026-07-29', label: '29 Tem Çar' }
+  ];
+
+  return (
+    <div style={{ padding: '1rem' }}>
+      <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent-purple)' }}>Görüşme Takvimi (17-29 Temmuz)</h2>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+        gap: '1rem'
+      }}>
+        {days.map(day => {
+          // Find companies with this meeting date
+          const dayCompanies = companies.filter(c => {
+            const tData = trackerData[c.id];
+            return tData && tData.meeting_date === day.date;
+          });
+
+          return (
+            <div key={day.date} className="neo-card" style={{ minHeight: '150px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{
+                backgroundColor: 'var(--bg-inner)',
+                padding: '0.5rem',
+                borderBottom: '2px solid var(--border-color)',
+                fontWeight: 'bold',
+                textAlign: 'center',
+                margin: '-1.5rem -1.5rem 1rem -1.5rem',
+                borderTopLeftRadius: '10px',
+                borderTopRightRadius: '10px'
+              }}>
+                {day.label}
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {dayCompanies.length > 0 ? (
+                  dayCompanies.map(c => (
+                    <div 
+                      key={c.id} 
+                      className="neo-button" 
+                      style={{ padding: '0.5rem', fontSize: '0.8rem', backgroundColor: 'var(--accent-teal)', textAlign: 'left', display: 'block', width: '100%' }}
+                      onClick={() => onSelectCompany(c.id)}
+                    >
+                      <strong>{c.name}</strong>
+                      <div style={{ fontSize: '0.7rem', marginTop: '0.2rem', color: '#000' }}>
+                        {trackerData[c.id]?.status}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textAlign: 'center', marginTop: '1rem' }}>Görüşme yok</div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 function App() {
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
@@ -317,7 +391,7 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [lang, setLang] = useState('tr'); // 'tr' or 'en'
 
-  const [contactedIds, setContactedIds] = useState([]);
+  const [trackerData, setTrackerData] = useState({});
   const [selectedCity, setSelectedCity] = useState('All');
   const [selectedTarget, setSelectedTarget] = useState('All');
 
@@ -397,37 +471,28 @@ function App() {
   }, []);
 
   // Load tracker
-  useEffect(() => {
+  const fetchTrackerData = () => {
     fetch(`${API_BASE}/tracker`)
-      .then(res => {
-        if (!res.ok) return {};
-        return res.json();
-      })
+      .then(res => res.ok ? res.json() : {})
       .then(data => {
-        if (data && Array.isArray(data.contacted)) {
-          setContactedIds(data.contacted);
-        }
+        if (data) setTrackerData(data);
       })
       .catch(err => console.error("Error loading tracker:", err));
+  };
+  useEffect(() => {
+    fetchTrackerData();
   }, []);
 
-  const toggleContacted = (id, e) => {
-    if(e) e.stopPropagation();
-    const isContacted = contactedIds.includes(id);
-    const newState = !isContacted;
-    
-    // Optimistic UI update
-    setContactedIds(prev => newState ? [...prev, id] : prev.filter(cId => cId !== id));
-
+  const manualUpdateTracker = (id, newStatus, newDate) => {
     fetch(`${API_BASE}/tracker`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company_id: id, contacted: newState })
+      body: JSON.stringify({ company_id: id, status: newStatus, meeting_date: newDate })
     })
     .then(res => res.json())
     .then(data => {
-      if (data.status === 'success' && data.contacted) {
-        setContactedIds(data.contacted);
+      if (data.status === 'success' && data.tracker) {
+        setTrackerData(data.tracker);
       }
     })
     .catch(err => console.error(err));
@@ -859,7 +924,16 @@ function App() {
 
       {/* Main Content Area */}
       <main style={{ flex: 1, padding: '2rem' }}>
-        {currentTab === 'companies' ? (
+        {currentTab === 'calendar' ? (
+          <CalendarView 
+            trackerData={trackerData} 
+            companies={filteredCompanies} 
+            onSelectCompany={(id) => {
+              setSelectedCompanyId(id);
+              setCurrentTab('companies');
+            }} 
+          />
+        ) : currentTab === 'companies' ? (
           // Tab 1: Companies Grid or Detail
           !selectedCompanyId ? (
             <div>
@@ -992,26 +1066,38 @@ function App() {
                           {lang === 'tr' ? c.focus_area_tr : c.focus_area_en}
                         </p>
 
-                        {/* CONTACTED BUTTON */}
-                        <button 
-                          className="neo-button"
-                          onClick={(e) => toggleContacted(c.id, e)}
+                        {/* STATUS UI */}
+                        <div 
                           style={{ 
                             width: '100%',
                             padding: '0.5rem', 
                             fontSize: '0.8rem', 
                             borderRadius: '8px',
-                            backgroundColor: contactedIds.includes(c.id) ? 'var(--accent-teal)' : 'var(--bg-inner)',
-                            color: contactedIds.includes(c.id) ? '#000' : 'var(--text-light)',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginTop: '0.5rem'
+                            backgroundColor: trackerData[c.id] ? 'var(--accent-teal)' : 'var(--bg-inner)',
+                            color: trackerData[c.id] ? '#000' : 'var(--text-muted)',
+                            marginTop: '0.5rem',
+                            border: trackerData[c.id] ? '1px solid #000' : '1px dashed var(--border-color)',
+                            textAlign: 'center',
+                            cursor: 'help'
                           }}
-                          title="Toggle Contacted Status"
+                          title="Statü detayını görmek veya AI ile güncellemek için firmaya tıklayın."
                         >
-                          {contactedIds.includes(c.id) ? t.contactedBtn : t.markContactedBtn}
-                        </button>
+                          <strong style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.2rem', color: trackerData[c.id] ? '#000' : 'var(--accent-yellow)' }}>
+                            Güncel Durum:
+                          </strong>
+                          {trackerData[c.id] ? (
+                            <>
+                              <span>{trackerData[c.id]?.status}</span>
+                              {trackerData[c.id]?.meeting_date && (
+                                <span style={{ display: 'block', marginTop: '0.2rem', fontWeight: 'bold' }}>
+                                  📅 {trackerData[c.id]?.meeting_date}
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span>İletişim Yok</span>
+                          )}
+                        </div>
                       </div>
 
                       <div style={{ borderTop: '2px solid var(--bg-inner)', paddingTop: '1rem', marginTop: '1rem' }}>

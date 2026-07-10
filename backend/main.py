@@ -98,7 +98,8 @@ class EmailGenerateRequest(BaseModel):
 
 class TrackerUpdateModel(BaseModel):
     company_id: str
-    contacted: bool
+    status: str
+    meeting_date: str = ""
 
 class AddMessageRequest(BaseModel):
     type: str  # 'sent' or 'received'
@@ -235,16 +236,19 @@ def get_tracker():
 @app.post("/api/tracker")
 def update_tracker(req: TrackerUpdateModel):
     data = load_json(TRACKER_FILE)
-    if "contacted" not in data:
-        data["contacted"] = []
+    if "contacted" in data and isinstance(data["contacted"], list):
+        new_data = {}
+        for cid in data["contacted"]:
+            new_data[cid] = {"status": "İletişim Kuruldu", "meeting_date": ""}
+        data = new_data
     
-    if req.contacted and req.company_id not in data["contacted"]:
-        data["contacted"].append(req.company_id)
-    elif not req.contacted and req.company_id in data["contacted"]:
-        data["contacted"].remove(req.company_id)
+    data[req.company_id] = {
+        "status": req.status,
+        "meeting_date": req.meeting_date
+    }
         
     save_json(TRACKER_FILE, data)
-    return {"status": "success", "contacted": data["contacted"]}
+    return {"status": "success", "tracker": data}
 
 
 @app.get("/api/correspondence/{company_id}")
@@ -310,12 +314,31 @@ def analyze_correspondence_endpoint(company_id: str, lang: str = "tr"):
 
     analysis_result = analyze_correspondence(company_name, messages, lang)
     
+    status_summary = analysis_result.get("status_summary", "")
+    meeting_date = analysis_result.get("meeting_date", "")
+    analysis_markdown = analysis_result.get("analysis_markdown", "")
+
     if company_id not in data:
         data[company_id] = {"messages": [], "analysis": "", "notes": []}
-    data[company_id]["analysis"] = analysis_result
+    data[company_id]["analysis"] = analysis_markdown
     save_json(CORRESPONDENCE_FILE, data)
     
-    return {"analysis": analysis_result}
+    # Auto-update tracker
+    tracker_data = load_json(TRACKER_FILE)
+    if "contacted" in tracker_data and isinstance(tracker_data["contacted"], list):
+        new_data = {}
+        for cid in tracker_data["contacted"]:
+            new_data[cid] = {"status": "İletişim Kuruldu", "meeting_date": ""}
+        tracker_data = new_data
+
+    if status_summary:
+        tracker_data[company_id] = {
+            "status": status_summary,
+            "meeting_date": meeting_date
+        }
+        save_json(TRACKER_FILE, tracker_data)
+
+    return {"analysis": analysis_markdown, "status": status_summary, "meeting_date": meeting_date}
 
 
 @app.post("/api/correspondence/{company_id}/voice-note")

@@ -258,18 +258,19 @@ def analyze_correspondence(
     company_name: str,
     messages: list,
     lang: str = 'tr'
-) -> str:
+) -> dict:
     """
     Calls OpenRouter API to analyze correspondence with a company.
-    Returns markdown analysis of interest level, tone, next steps, and overall status.
+    Returns a dict with 'status_summary', 'meeting_date', and 'analysis_markdown'.
     """
     if not messages:
         if lang == 'tr':
-            return "Henüz analiz edilecek yazışma bulunmuyor."
-        return "No correspondence to analyze yet."
+            return {"status_summary": "İletişim Yok", "meeting_date": "", "analysis_markdown": "Henüz analiz edilecek yazışma bulunmuyor."}
+        return {"status_summary": "No Contact", "meeting_date": "", "analysis_markdown": "No correspondence to analyze yet."}
 
     if not OPENROUTER_API_KEY:
-        return "Hata: OpenRouter API key .env dosyasında bulunamadı." if lang == 'tr' else "Error: OpenRouter API key not configured."
+        err = "Hata: OpenRouter API key .env dosyasında bulunamadı." if lang == 'tr' else "Error: OpenRouter API key not configured."
+        return {"status_summary": "Hata", "meeting_date": "", "analysis_markdown": err}
 
     language = "Türkçe" if lang == 'tr' else "English"
 
@@ -280,20 +281,19 @@ def analyze_correspondence(
 
     system_prompt = f"""You are a professional communication analyst. Analyze the following email/message correspondence with the company "{company_name}".
 
-Provide your analysis in {language} with these sections (use Markdown formatting):
-1. **İlgi Düzeyi / Interest Level**: How interested does the company seem? (Scale: Çok Yüksek, Yüksek, Orta, Düşük, Belirsiz)
-2. **Ton Analizi / Tone Analysis**: What is the overall tone of the conversation? (Professional, Warm, Cold, Neutral, etc.)
-3. **Sonraki Adımlar / Next Steps**: What concrete actions should be taken next?
-4. **Genel Durum / Overall Status**: A brief summary of where this relationship stands.
-
-Be concise but insightful."""
+You MUST return your response as a valid JSON object EXACTLY matching this structure (no markdown fences around the JSON):
+{{
+  "status_summary": "A short 3-6 word summary (e.g. 'Mail Gönderildi', 'Olumlu - Görüşme Planlandı', 'Görüşme Tamamlandı - Olumsuz')",
+  "meeting_date": "YYYY-MM-DD if a meeting date in 2026 is mentioned, otherwise empty string",
+  "analysis_markdown": "Your detailed analysis in {language} with these sections: 1. İlgi Düzeyi, 2. Ton Analizi, 3. Sonraki Adımlar, 4. Genel Durum"
+}}"""
 
     user_prompt = f"""Company: {company_name}
 
 Correspondence:
 {messages_text}
 
-Please analyze this correspondence."""
+Please analyze this correspondence and output strictly JSON."""
 
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -308,7 +308,8 @@ Please analyze this correspondence."""
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ],
-        "temperature": 0.5
+        "temperature": 0.3,
+        "response_format": {"type": "json_object"}
     }
 
     try:
@@ -319,15 +320,18 @@ Please analyze this correspondence."""
             timeout=25
         )
         if response.status_code != 200:
-            return f"API Hatası ({response.status_code}): {response.text}"
+            return {"status_summary": "API Hatası", "meeting_date": "", "analysis_markdown": f"API Hatası ({response.status_code}): {response.text}"}
 
         result_json = response.json()
         choices = result_json.get("choices", [])
         if choices:
-            return choices[0].get("message", {}).get("content", "Hata: Modelden içerik dönmedi.")
-        return "Hata: Yanıtta seçenek bulunamadı."
+            content = choices[0].get("message", {}).get("content", "{}")
+            # Gemini might still wrap in ```json ... ```
+            content = content.replace("```json", "").replace("```", "").strip()
+            return json.loads(content)
+        return {"status_summary": "Hata", "meeting_date": "", "analysis_markdown": "Hata: Yanıtta seçenek bulunamadı."}
     except Exception as e:
-        return f"LLM çağrısı sırasında hata oluştu: {str(e)}"
+        return {"status_summary": "Hata", "meeting_date": "", "analysis_markdown": f"LLM çağrısı sırasında hata oluştu: {str(e)}"}
 
 def format_voice_note(
     raw_transcript: str,

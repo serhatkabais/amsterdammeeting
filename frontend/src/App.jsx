@@ -579,20 +579,14 @@ function App() {
       });
   };
 
-  // Download PDF
+  // Download PDF via Native Print for better text formatting and copy-pasteability
   const handleDownloadPdf = (companyName) => {
-    const element = document.getElementById('strategy-report-content');
-    if (!element) return;
-    
-    const opt = {
-      margin:       [10, 10, 10, 10],
-      filename:     `${companyName}_Gorusme_Stratejisi.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    
-    html2pdf().set(opt).from(element).save();
+    const originalTitle = document.title;
+    document.title = `${companyName}_Gorusme_Stratejisi`;
+    window.print();
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1000);
   };
 
   const handleCopyEmail = () => {
@@ -1829,8 +1823,32 @@ function App() {
         color: 'var(--text-muted)',
         fontSize: '0.85rem'
       }}>
-        <p className="text-mono">Made with âœŒï¸ & ðŸŒ¸ for EdTech Innovation. Â© 2026</p>
+        <p className="text-mono">Made with ✌️ & 🌸 for EdTech Innovation. © 2026</p>
       </footer>
+
+      {/* Hidden Print Container for High-Quality Native PDF Generation */}
+      <div className="print-only">
+        {selectedCompany && (
+          <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', borderBottom: '2px solid #ccc', paddingBottom: '20px', marginBottom: '20px' }}>
+              <CompanyLogo domain={selectedCompany.website} name={selectedCompany.name} size={100} />
+              <div>
+                <h1 style={{ fontSize: '2.5rem', margin: '0 0 10px 0', color: '#000' }}>{selectedCompany.name}</h1>
+                <p style={{ margin: '0', color: '#333', fontSize: '1.2rem', fontWeight: 'bold' }}>
+                  {lang === 'tr' ? selectedCompany.focus_area_tr : selectedCompany.focus_area_en}
+                </p>
+                <p style={{ margin: '5px 0 0 0', color: '#666', fontSize: '1rem' }}>
+                  {selectedCompany.website} | {selectedCompany.location}
+                </p>
+              </div>
+            </div>
+            
+            <div className="markdown-body" style={{ color: '#000', backgroundColor: '#fff', fontSize: '1rem', lineHeight: '1.6' }}>
+              <ReactMarkdown>{preGeneratedReports[selectedCompanyId] || (lang === 'tr' ? 'Rapor bulunamadı.' : 'Report not found.')}</ReactMarkdown>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

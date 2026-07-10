@@ -176,3 +176,26 @@ h1, h2, h3, .font-groovy {
   background-color: var(--accent-teal);
   border: 1px solid #000;
 }
+
+/* Print Styles for Native PDF Generation */
+.print-only {
+  display: none;
+}
+
+@media print {
+  body > #root > div > header, 
+  body > #root > div > div.peace-wave,
+  body > #root > div > main,
+  body > #root > div > footer,
+  body > #root > div > div:not(.print-only) {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+    position: static !important;
+    width: 100%;
+    background-color: white !important;
+    color: black !important;
+  }
+}

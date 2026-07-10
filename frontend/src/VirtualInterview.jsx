@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = window.location.port === '5173' 
+  ? 'http://127.0.0.1:8000/api' 
+  : '/api';
 
 export default function VirtualInterview({ companyId, companyName }) {
   const [isOpen, setIsOpen] = useState(false);

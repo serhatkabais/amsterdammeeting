@@ -110,9 +110,8 @@ class VoiceNoteRequest(BaseModel):
 
 @app.get("/api/companies")
 def get_companies():
-    if not os.path.exists(COMPANIES_FILE):
-        return []
-    return load_json(COMPANIES_FILE)
+    result = load_json(COMPANIES_FILE)
+    return result if isinstance(result, list) else []
 
 @app.get("/api/companies/{company_id}")
 def get_company(company_id: str):
@@ -225,8 +224,6 @@ def generate_strategy(req: EmailGenerateRequest): # Reuse the same request model
 
 @app.get("/api/strategy/reports")
 def get_strategy_reports():
-    if not os.path.exists(REPORTS_FILE):
-        return {}
     return load_json(REPORTS_FILE)
 
 @app.get("/api/tracker")

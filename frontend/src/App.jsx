@@ -856,6 +856,45 @@ function App() {
         
         {/* Navigation tabs & Language toggle */}
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button 
+            className="neo-button" 
+            style={{ 
+              backgroundColor: currentTab === 'companies' ? 'var(--accent-yellow)' : 'transparent',
+              color: currentTab === 'companies' ? '#000' : 'var(--text-light)',
+              boxShadow: currentTab === 'companies' ? 'var(--box-shadow-flat)' : 'none',
+              transform: currentTab === 'companies' ? 'translate(-2px, -2px)' : 'none'
+            }}
+            onClick={() => { setCurrentTab('companies'); setSelectedCompanyId(null); }}
+          >
+            {t.tabCompanies}
+          </button>
+          
+          <button 
+            className="neo-button" 
+            style={{ 
+              backgroundColor: currentTab === 'calendar' ? 'var(--accent-teal)' : 'transparent',
+              color: currentTab === 'calendar' ? '#000' : 'var(--text-light)',
+              boxShadow: currentTab === 'calendar' ? 'var(--box-shadow-flat)' : 'none',
+              transform: currentTab === 'calendar' ? 'translate(-2px, -2px)' : 'none'
+            }}
+            onClick={() => setCurrentTab('calendar')}
+          >
+            Takvim
+          </button>
+
+          <button 
+            className="neo-button" 
+            style={{ 
+              backgroundColor: currentTab === 'rag' ? 'var(--accent-purple)' : 'transparent',
+              color: currentTab === 'rag' ? '#FFF' : 'var(--text-light)',
+              boxShadow: currentTab === 'rag' ? 'var(--box-shadow-flat)' : 'none',
+              transform: currentTab === 'rag' ? 'translate(-2px, -2px)' : 'none'
+            }}
+            onClick={() => setCurrentTab('rag')}
+          >
+            RAG
+          </button>
+
           {/* Language Switcher */}
           <div style={{
             display: 'flex',
@@ -894,45 +933,6 @@ function App() {
               EN
             </button>
           </div>
-
-          <button 
-            className="neo-button" 
-            style={{ 
-              backgroundColor: currentTab === 'companies' ? 'var(--accent-yellow)' : 'transparent',
-              color: currentTab === 'companies' ? '#000' : 'var(--text-light)',
-              boxShadow: currentTab === 'companies' ? 'var(--box-shadow-flat)' : 'none',
-              transform: currentTab === 'companies' ? 'translate(-2px, -2px)' : 'none'
-            }}
-            onClick={() => { setCurrentTab('companies'); setSelectedCompanyId(null); }}
-          >
-            {t.tabCompanies}
-          </button>
-          
-          <button 
-            className="neo-button" 
-            style={{ 
-              backgroundColor: currentTab === 'calendar' ? 'var(--accent-teal)' : 'transparent',
-              color: currentTab === 'calendar' ? '#000' : 'var(--text-light)',
-              boxShadow: currentTab === 'calendar' ? 'var(--box-shadow-flat)' : 'none',
-              transform: currentTab === 'calendar' ? 'translate(-2px, -2px)' : 'none'
-            }}
-            onClick={() => setCurrentTab('calendar')}
-          >
-            Takvim
-          </button>
-
-          <button 
-            className="neo-button" 
-            style={{ 
-              backgroundColor: currentTab === 'rag' ? 'var(--accent-purple)' : 'transparent',
-              color: currentTab === 'rag' ? '#FFF' : 'var(--text-light)',
-              boxShadow: currentTab === 'rag' ? 'var(--box-shadow-flat)' : 'none',
-              transform: currentTab === 'rag' ? 'translate(-2px, -2px)' : 'none'
-            }}
-            onClick={() => setCurrentTab('rag')}
-          >
-            RAG Bilgi Deposu
-          </button>
         </div>
       </header>
 

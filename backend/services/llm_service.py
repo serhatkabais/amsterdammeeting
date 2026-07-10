@@ -22,7 +22,8 @@ def generate_outreach_email(
     company_focus: str,
     why_recommended: str,
     scraped_text: str,
-    rag_data: dict
+    rag_data: dict,
+    custom_notes: str = ""
 ) -> str:
     """
     Calls OpenRouter API to generate a realistic, warm, B1-B2 level English email.
@@ -51,7 +52,11 @@ Email rules (CRITICAL FOR QUALITY):
 - Company Name: {company_name}
 - Focus Area: {company_focus}
 - Why we target them: {why_recommended}
+"""
+    if custom_notes:
+        user_prompt += f"\n- Special Instructions/Focus for this draft (CRITICAL: You MUST strictly incorporate these requests/points in the email): {custom_notes}\n"
 
+    user_prompt += f"""
 Below is the text crawled from their website for context (use this to mention a specific alignment, if relevant):
 --- START OF WEBSITE TEXT ---
 {scraped_text[:2000]}

@@ -94,6 +94,7 @@ class ChatInterviewRequest(BaseModel):
 class EmailGenerateRequest(BaseModel):
     company_id: str
     force_refresh: bool = False
+    custom_notes: str = ""
 
 class TrackerUpdateModel(BaseModel):
     company_id: str
@@ -178,7 +179,8 @@ def generate_email(req: EmailGenerateRequest):
         company_focus=target_company.get("focus_area"),
         why_recommended=target_company.get("why_recommended"),
         scraped_text=scraped_text,
-        rag_data=rag_data
+        rag_data=rag_data,
+        custom_notes=req.custom_notes
     )
     
     return {

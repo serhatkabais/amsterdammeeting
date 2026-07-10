@@ -11,7 +11,7 @@ if not os.path.exists(".git"):
     print("[+] Initializing Git repository...")
     subprocess.run(["git", "init"], check=True)
 else:
-    print("[✓] Git repository already initialized.")
+    print("[v] Git repository already initialized.")
 
 # 2. Configure Git user locally
 print("[+] Configuring local Git user...")
@@ -25,7 +25,7 @@ subprocess.run(["git", "add", "."], check=True)
 # Check status
 status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
 if not status.stdout.strip():
-    print("[✓] Nothing to commit, working tree clean.")
+    print("[v] Nothing to commit, working tree clean.")
 else:
     print("[+] Committing changes...")
     subprocess.run(["git", "commit", "-m", "feat: setup Vercel deployment with Firebase database support"], check=True)
@@ -52,7 +52,7 @@ if remote_url:
     print("[+] Pushing to GitHub (this may prompt you for credentials)...")
     try:
         subprocess.run(["git", "push", "-u", "origin", "main"], check=True)
-        print("\n[✓] Successfully pushed to GitHub!")
+        print("\n[v] Successfully pushed to GitHub!")
     except subprocess.CalledProcessError as e:
         print(f"\n[X] Push failed. If this is an authentication issue, you may need to log in to GitHub in your terminal or use Git Credential Manager.")
 else:

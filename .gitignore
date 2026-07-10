@@ -33,6 +33,7 @@ backend/data/*.json
 # Let's definitely ignore .env files!
 .env
 .env.*
+vercel.env
 
 # OS files
 .DS_Store

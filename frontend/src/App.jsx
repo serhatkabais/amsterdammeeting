@@ -331,6 +331,7 @@ function App() {
   const [emailLoading, setEmailLoading] = useState(false);
   const [generatedEmail, setGeneratedEmail] = useState('');
   const [copied, setCopied] = useState(false);
+  const [customEmailNotes, setCustomEmailNotes] = useState('');
 
   // Strategy Generator State
   const [preGeneratedReports, setPreGeneratedReports] = useState({});
@@ -467,6 +468,7 @@ function App() {
 
   // Load website crawler stats and correspondence when selected company changes
   useEffect(() => {
+    setCustomEmailNotes('');
     if (selectedCompanyId) {
       const company = companies.find(c => c.id === selectedCompanyId);
       if (company && company.website) {
@@ -557,7 +559,8 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         company_id: selectedCompanyId,
-        force_refresh: forceScrape
+        force_refresh: forceScrape,
+        custom_notes: customEmailNotes
       })
     })
       .then(res => res.json())
@@ -1156,9 +1159,19 @@ function App() {
                     <h3 style={{ fontSize: '1.4rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <PeaceIcon color="var(--accent-yellow)" /> {t.emailHeader}
                     </h3>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: '1.4' }}>
-                      {t.emailInfo}
-                    </p>
+                    <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>
+                        {lang === 'tr' ? 'Mektup Taslak Notları (İsteğe Bağlı)' : 'Email Draft Notes (Optional)'}
+                      </label>
+                      <textarea
+                        className="neo-textarea"
+                        rows="3"
+                        placeholder={lang === 'tr' ? "Yapay zekanın bu taslak için odaklanmasını istediğiniz özel detayları girin (örn: 'Assos köy okulları projesinden bahset', 'Duygu\\'nun çizerlik yeteneğine odaklan')..." : "Add specific instructions/notes for this draft (e.g. 'mention Assos village schools project', 'focus on Duygu\\'s illustration skills')..."}
+                        value={customEmailNotes}
+                        onChange={(e) => setCustomEmailNotes(e.target.value)}
+                        style={{ fontSize: '0.85rem', lineHeight: '1.4', background: 'var(--bg-inner)' }}
+                      />
+                    </div>
 
                     {!generatedEmail && !emailLoading && (
                       <button 

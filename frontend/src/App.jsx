@@ -102,6 +102,9 @@ const translations = {
     categoryFilter: "Kategori:",
     webSiteBtn: "Web Sitesi",
     whyRecHeader: "Neden Tavsiye Ediyoruz?",
+    swotHeader: "Güçlü & Zayıf Yönler",
+    swotStrengths: "Güçlü Yönler (Avantajlar)",
+    swotWeaknesses: "Zayıf Yönler (Riskler)",
     backBtn: "Geri Dön",
 
     emailInfo: "RAG veri tabanındaki profillerinizi ve şirketin taranan site içeriğini harmanlayarak, abartıdan uzak, gerçekçi ve samimi B1-B2 seviyesinde bir İngilizce görüşme talebi mektubu oluşturun.",
@@ -179,6 +182,9 @@ const translations = {
     categoryFilter: "Category:",
     webSiteBtn: "Website",
     whyRecHeader: "Why Recommended?",
+    swotHeader: "Strengths & Weaknesses",
+    swotStrengths: "Strengths (Advantages)",
+    swotWeaknesses: "Weaknesses (Risks)",
     backBtn: "Go Back",
 
     emailInfo: "Generate an outreach email integrating the RAG profile data and the crawled company content.",

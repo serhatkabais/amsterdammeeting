@@ -139,19 +139,23 @@ def fetch_company_website(company_id: str, url: str, force_refresh: bool = False
 
 @app.post("/api/chat/interview")
 def run_chat_interview(req: ChatInterviewRequest):
-    companies = load_json(COMPANIES_FILE)
-    company = next((c for c in companies if c["id"] == req.company_id), None)
-    if not company:
-        raise HTTPException(status_code=404, detail="Company not found")
+    try:
+        companies = load_json(COMPANIES_FILE)
+        company = next((c for c in companies if c["id"] == req.company_id), None)
+        if not company:
+            raise HTTPException(status_code=404, detail="Company not found")
 
-    rag_data = load_json(RAG_FILE)
-    response = chat_interview(
-        company_name=company["name"],
-        company_focus=company.get("focus_area_en", ""),
-        rag_data=rag_data,
-        chat_history=req.chat_history
-    )
-    return {"reply": response}
+        rag_data = load_json(RAG_FILE)
+        response = chat_interview(
+            company_name=company["name"],
+            company_focus=company.get("focus_area_en", ""),
+            rag_data=rag_data,
+            chat_history=req.chat_history
+        )
+        return {"reply": response}
+    except Exception as e:
+        import traceback
+        return {"reply": f"DEBUG_ERROR: {str(e)}\n{traceback.format_exc()}"}
 
 @app.post("/api/email/generate")
 

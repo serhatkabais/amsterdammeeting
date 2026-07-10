@@ -147,7 +147,7 @@ def run_chat_interview(req: ChatInterviewRequest):
     rag_data = load_json(RAG_FILE)
     response = chat_interview(
         company_name=company["name"],
-        company_focus=company["focus"],
+        company_focus=company.get("focus_area_en", ""),
         rag_data=rag_data,
         chat_history=req.chat_history
     )
@@ -176,7 +176,7 @@ def generate_email(req: EmailGenerateRequest):
         
     email_content = generate_outreach_email(
         company_name=target_company.get("name"),
-        company_focus=target_company.get("focus_area"),
+        company_focus=target_company.get("focus_area_en", ""),
         why_recommended=target_company.get("why_recommended"),
         scraped_text=scraped_text,
         rag_data=rag_data,
@@ -211,7 +211,7 @@ def generate_strategy(req: EmailGenerateRequest): # Reuse the same request model
         
     report_content = generate_strategy_report(
         company_name=target_company.get("name"),
-        company_focus=target_company.get("focus_area"),
+        company_focus=target_company.get("focus_area_en", ""),
         why_recommended=target_company.get("why_recommended"),
         scraped_text=scraped_text,
         rag_data=rag_data

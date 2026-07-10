@@ -1148,19 +1148,20 @@ function App() {
                         <CompanyLogo domain={selectedCompany?.website} name={selectedCompany?.name} size={140} />
                         <h2 style={{ fontSize: '2.5rem', margin: 0, lineHeight: '1.1' }}>{selectedCompany?.name}</h2>
                       </div>
-                      <button 
-                        className="neo-button"
-                        onClick={() => toggleContacted(selectedCompany?.id)}
-                        style={{ 
-                          padding: '0.6rem 1rem', 
-                          fontSize: '0.9rem', 
-                          backgroundColor: contactedIds.includes(selectedCompany?.id) ? 'var(--accent-teal)' : 'var(--bg-inner)',
-                          color: contactedIds.includes(selectedCompany?.id) ? '#000' : 'var(--text-light)',
-                          border: contactedIds.includes(selectedCompany?.id) ? '2px solid #000' : '2px dashed var(--border-color)'
-                        }}
-                      >
-                        {contactedIds.includes(selectedCompany?.id) ? t.contactedBtn : t.markContactedBtn}
-                      </button>
+                      <div style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: trackerData[selectedCompany?.id] ? 'var(--accent-teal)' : 'var(--bg-inner)',
+                        color: trackerData[selectedCompany?.id] ? '#000' : 'var(--text-light)',
+                        border: '2px dashed var(--border-color)',
+                        borderRadius: '10px',
+                        textAlign: 'right'
+                      }}>
+                        <strong style={{ fontSize: '0.75rem', display: 'block' }}>Güncel Durum:</strong>
+                        <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{trackerData[selectedCompany?.id]?.status || 'İletişim Yok'}</span>
+                        {trackerData[selectedCompany?.id]?.meeting_date && (
+                          <div style={{ fontSize: '0.8rem', marginTop: '0.2rem' }}>📅 {trackerData[selectedCompany?.id]?.meeting_date}</div>
+                        )}
+                      </div>
                     </div>
 
                     <p style={{ fontSize: '1rem', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '1.5rem' }}>

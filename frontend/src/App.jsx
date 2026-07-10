@@ -907,6 +907,20 @@ function App() {
           >
             {t.tabCompanies}
           </button>
+          
+          <button 
+            className="neo-button" 
+            style={{ 
+              backgroundColor: currentTab === 'calendar' ? 'var(--accent-teal)' : 'transparent',
+              color: currentTab === 'calendar' ? '#000' : 'var(--text-light)',
+              boxShadow: currentTab === 'calendar' ? 'var(--box-shadow-flat)' : 'none',
+              transform: currentTab === 'calendar' ? 'translate(-2px, -2px)' : 'none'
+            }}
+            onClick={() => setCurrentTab('calendar')}
+          >
+            Takvim
+          </button>
+
           <button 
             className="neo-button" 
             style={{ 
@@ -917,7 +931,7 @@ function App() {
             }}
             onClick={() => setCurrentTab('rag')}
           >
-            {t.tabRag}
+            RAG Bilgi Deposu
           </button>
         </div>
       </header>

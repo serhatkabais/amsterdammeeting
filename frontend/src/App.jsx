@@ -1930,7 +1930,7 @@ function App() {
         color: 'var(--text-muted)',
         fontSize: '0.85rem'
       }}>
-        <p className="text-mono">Made with ✌️ & 🌸 for EdTech Innovation. © 2026</p>
+        <p className="text-mono">Made by EduManu © 2026</p>
       </footer>
 
       {/* Hidden Print Container for High-Quality Native PDF Generation */}

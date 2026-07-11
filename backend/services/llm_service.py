@@ -73,7 +73,7 @@ Format the output as a clean, ready-to-copy email body (with a subject line at t
     }
 
     payload = {
-        "model": "google/gemini-2.5-flash",
+        "model": "google/gemini-3.5-flash",
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
@@ -155,7 +155,7 @@ Lütfen strateji raporunu Markdown formatında oluştur.
     }
 
     payload = {
-        "model": "google/gemini-2.5-pro",
+        "model": "google/gemini-3.5-flash",
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
@@ -231,7 +231,7 @@ CRITICAL RULES:
     }
 
     payload = {
-        "model": "google/gemini-2.5-flash",
+        "model": "google/gemini-3.5-flash",
         "messages": formatted_messages,
         "temperature": 0.6
     }
@@ -303,7 +303,7 @@ Please analyze this correspondence and output strictly JSON."""
     }
 
     payload = {
-        "model": "google/gemini-2.5-flash",
+        "model": "google/gemini-3.5-flash",
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
@@ -361,7 +361,7 @@ Please format this into clean, organized notes."""
     }
 
     payload = {
-        "model": "google/gemini-2.5-flash",
+        "model": "google/gemini-3.5-flash",
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}

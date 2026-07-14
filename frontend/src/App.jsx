@@ -147,6 +147,7 @@ const translations = {
     copyBtn: "Maili Kopyala",
     copied: "Kopyalandı! ✔️",
     regenerateBtn: "🔄 Yeniden Üret",
+    downloadPdfBtn: "PDF İndir",
     strategyHeader: "Şirkete Özel Görüşme & Hazırlık Stratejisi (Türkçe)",
     
     ragTitle: "RAG Bilgi Deposu Yönetimi",
@@ -230,6 +231,7 @@ const translations = {
     copyBtn: "Copy Email",
     copied: "Copied! ✔️",
     regenerateBtn: "🔄 Regenerate",
+    downloadPdfBtn: "Download PDF",
     strategyHeader: "Company Specific Strategy (Turkish)",
 
     ragTitle: "RAG Knowledge Base Management",
@@ -693,12 +695,51 @@ function App() {
 
   // Download PDF via Native Print for better text formatting and copy-pasteability
   const handleDownloadPdf = (companyName) => {
-    const originalTitle = document.title;
-    document.title = `${companyName}_Gorusme_Stratejisi`;
-    window.print();
-    setTimeout(() => {
-      document.title = originalTitle;
-    }, 1000);
+    const reportElement = document.getElementById('strategy-report-content');
+    if (!reportElement) {
+      alert(lang === 'tr' ? 'Rapor içeriği bulunamadı.' : 'Report content not found.');
+      return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${companyName} - Görüşme Stratejisi</title>
+          <style>
+            body { 
+              font-family: system-ui, -apple-system, sans-serif; 
+              padding: 40px; 
+              color: #000; 
+              background-color: #fff;
+              line-height: 1.6; 
+            }
+            h1, h2, h3, h4 { color: #111; margin-top: 1.5em; margin-bottom: 0.5em; }
+            h1:first-child, h2:first-child { margin-top: 0; }
+            p { margin-bottom: 1em; }
+            ul, ol { margin-bottom: 1em; padding-left: 20px; }
+            li { margin-bottom: 0.5em; }
+            strong { font-weight: bold; }
+            .markdown-body { max-width: 800px; margin: 0 auto; }
+            
+            /* Hide any UI elements inside the markdown output if they exist */
+            button { display: none !important; }
+          </style>
+        </head>
+        <body>
+          <div class="markdown-body">
+            ${reportElement.innerHTML}
+          </div>
+          <script>
+            window.onload = () => {
+              window.print();
+              setTimeout(() => { window.close(); }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   const handleCopyEmail = () => {

@@ -108,6 +108,15 @@ const getStatusUI = (statusString) => {
   return { bg: 'var(--accent-teal)', color: '#000', border: '1px solid #000', labelColor: '#000' };
 };
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  }
+  return dateStr;
+};
+
 const SparklesIcon = ({ size = 20, color = "var(--accent-yellow)" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="var(--border-color)" strokeWidth="1.5">
     <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" />
@@ -1212,7 +1221,7 @@ function App() {
                           <span>{trackerData[c.id]?.status || 'İletişim Yok'}</span>
                           {trackerData[c.id]?.meeting_date && (
                             <span style={{ display: 'block', marginTop: '0.2rem', fontWeight: 'bold' }}>
-                              📅 {trackerData[c.id]?.meeting_date}
+                              📅 {formatDate(trackerData[c.id]?.meeting_date)}
                             </span>
                           )}
                         </div>
@@ -1277,7 +1286,7 @@ function App() {
                         <strong style={{ fontSize: '0.75rem', display: 'block', color: getStatusUI(trackerData[selectedCompany?.id]?.status).labelColor }}>Güncel Durum:</strong>
                         <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{trackerData[selectedCompany?.id]?.status || 'İletişim Yok'}</span>
                         {trackerData[selectedCompany?.id]?.meeting_date && (
-                          <div style={{ fontSize: '0.8rem', marginTop: '0.2rem' }}>📅 {trackerData[selectedCompany?.id]?.meeting_date}</div>
+                          <div style={{ fontSize: '0.8rem', marginTop: '0.2rem' }}>📅 {formatDate(trackerData[selectedCompany?.id]?.meeting_date)}</div>
                         )}
                       </div>
                     </div>
@@ -1446,6 +1455,7 @@ function App() {
                             key={msg.id} 
                             style={{ 
                               padding: '1rem', 
+                              paddingBottom: '2.5rem',
                               borderRadius: '8px', 
                               border: '1px solid var(--border-color)',
                               backgroundColor: msg.type === 'sent' ? 'rgba(254, 211, 48, 0.08)' : 'rgba(46, 213, 115, 0.08)',
@@ -1460,7 +1470,7 @@ function App() {
                               }}>
                                 {msg.type === 'sent' ? `📤 ${t.corrSentLabel}` : `📥 ${t.corrReceivedLabel}`}
                               </span>
-                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{msg.date}</span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{formatDate(msg.date)}</span>
                             </div>
                             <p style={{ fontSize: '0.85rem', whiteSpace: 'pre-wrap', margin: 0, lineHeight: '1.4', color: 'var(--text-light)' }}>
                               {msg.content}
@@ -1469,16 +1479,16 @@ function App() {
                               onClick={() => handleDeleteMessage(msg.id)}
                               style={{ 
                                 position: 'absolute', 
-                                top: '0.5rem', 
+                                bottom: '0.5rem', 
                                 right: '0.5rem', 
                                 background: 'none', 
                                 border: 'none', 
                                 color: 'var(--accent-orange)', 
                                 cursor: 'pointer',
-                                fontSize: '0.9rem',
-                                opacity: 0.7
+                                fontSize: '1rem',
+                                opacity: 0.9
                               }}
-                              title="Sil"
+                              title={t.corrDeleteConfirm}
                             >
                               🗑️
                             </button>

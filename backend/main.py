@@ -181,6 +181,7 @@ def generate_email(req: EmailGenerateRequest):
         company_name=target_company.get("name"),
         company_focus=target_company.get("focus_area_en", ""),
         why_recommended=target_company.get("why_recommended"),
+        company_location=target_company.get("location", ""),
         scraped_text=scraped_text,
         rag_data=rag_data,
         custom_notes=req.custom_notes

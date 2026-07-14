@@ -21,6 +21,7 @@ def generate_outreach_email(
     company_name: str,
     company_focus: str,
     why_recommended: str,
+    company_location: str,
     scraped_text: str,
     rag_data: dict,
     custom_notes: str = ""
@@ -45,12 +46,13 @@ Email rules (CRITICAL FOR QUALITY):
 2. **Simplified Info:** Do NOT list multiple projects. Mention ONLY one relevant connection (e.g., if targeting an illustration-heavy company, focus on Duygu's visual pedagogy and 100+ books; if targeting AI/VR, focus on Serhat's EdTech/VR/Maker work).
 3. **Realistic & Natural Tone:** Avoid corporate buzzwords, excessive compliments, or sales pitch language. The tone must be friendly and authentic. Do NOT sound like you have been closely tracking or obsessing over their company. Keep the connection more superficial and casual (e.g., use phrases similar to "While researching the Dutch EdTech ecosystem, I came across your work and noticed...").
 4. **B1 English Level (Imperfect & Authentic):** Use B1 English primarily, with occasional B2 words. CRITICAL: The English should NOT be perfect or sound like a native speaker/AI. It must sound like an authentic non-native speaker who communicates well but makes minor natural phrasing imperfections. Do not use flawless grammar or advanced vocabulary, so expectations match reality when they meet face-to-face.
-5. **Call to Action:** Ask for a brief, casual coffee meeting in Amsterdam or Utrecht during their upcoming trip (16-30 July) to chat about EdTech and possible creative collaborations. Do not specify an exact duration (like 15 minutes).
+5. **Call to Action:** Ask for a brief, casual coffee meeting during their upcoming trip (16-30 July) to chat about EdTech and possible creative collaborations. Do not specify an exact duration (like 15 minutes). **IMPORTANT LOCATION RULE:** The company is located in {company_location}. If they are in Amsterdam, only suggest meeting in "Amsterdam". If they are in Utrecht, suggest meeting in "Amsterdam or Utrecht". If they are in any other city, you can suggest "Amsterdam or {company_location}".
 """
 
     user_prompt = f"""Write an outreach email to the following company:
 - Company Name: {company_name}
 - Focus Area: {company_focus}
+- Location: {company_location}
 - Why we target them: {why_recommended}
 """
     if custom_notes:

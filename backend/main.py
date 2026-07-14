@@ -65,10 +65,13 @@ def load_json(filepath):
     return {}
 
 def save_json(filepath, data):
-    # 1. Always save locally first (for backup / local consistency)
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    # 1. Try to save locally first (for backup / local consistency), ignore if read-only (like on Vercel)
+    try:
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"Skipping local save due to error (expected on Vercel): {e}")
 
     # 2. Upload to Firebase
     if FIREBASE_URL:

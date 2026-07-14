@@ -44,7 +44,7 @@ Email rules (CRITICAL FOR QUALITY):
 1. **Strict Brevity:** Keep the email extremely short and direct. Maximum 3 paragraphs, total word count must be between 100 and 130 words.
 2. **Simplified Info:** Do NOT list multiple projects. Mention ONLY one relevant connection (e.g., if targeting an illustration-heavy company, focus on Duygu's visual pedagogy and 100+ books; if targeting AI/VR, focus on Serhat's EdTech/VR/Maker work).
 3. **Realistic & Natural Tone:** Avoid corporate buzzwords, excessive compliments, or sales pitch language. The tone must be friendly, authentic, and sound like a real person writing a warm note.
-4. **B1-B2 English Level:** Use simple, natural, clear English. No overly complex academic sentences.
+4. **B1 English Level (Imperfect & Authentic):** Use B1 English primarily, with occasional B2 words. CRITICAL: The English should NOT be perfect or sound like a native speaker/AI. It must sound like an authentic non-native speaker who communicates well but makes minor natural phrasing imperfections. Do not use flawless grammar or advanced vocabulary, so expectations match reality when they meet face-to-face.
 5. **Call to Action:** Ask for a brief 10-15 minute casual coffee meeting in Amsterdam or Utrecht during their upcoming trip (16-30 July) to chat about EdTech and possible creative collaborations.
 """
 

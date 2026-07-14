@@ -128,6 +128,9 @@ const translations = {
 
     emailInfo: "RAG veri tabanındaki profillerinizi ve şirketin taranan site içeriğini harmanlayarak, abartıdan uzak, gerçekçi ve samimi B1-B2 seviyesinde bir İngilizce görüşme talebi mektubu oluşturun.",
     generateEmailBtn: "Görüşme Talebi Mektubu Üret (AI)",
+    copyBtn: "Maili Kopyala",
+    copied: "Kopyalandı! ✔️",
+    regenerateBtn: "🔄 Yeniden Üret",
     strategyHeader: "Şirkete Özel Görüşme & Hazırlık Stratejisi (Türkçe)",
     
     ragTitle: "RAG Bilgi Deposu Yönetimi",
@@ -208,6 +211,9 @@ const translations = {
 
     emailInfo: "Generate an outreach email integrating the RAG profile data and the crawled company content.",
     generateEmailBtn: "Generate Outreach Email (AI)",
+    copyBtn: "Copy Email",
+    copied: "Copied! ✔️",
+    regenerateBtn: "🔄 Regenerate",
     strategyHeader: "Company Specific Strategy (Turkish)",
 
     ragTitle: "RAG Knowledge Base Management",
@@ -1334,12 +1340,12 @@ function App() {
                           style={{ fontFamily: 'Space Mono, monospace', fontSize: '0.85rem', lineHeight: '1.5', backgroundColor: '#1A1816' }}
                         />
                         <div style={{ display: 'flex', gap: '1rem' }}>
-                          <button className="neo-button" style={{ flex: 1 }} onClick={handleCopyEmail}>
+                          <button className="neo-button" style={{ flex: 1, padding: '0.5rem' }} onClick={handleCopyEmail}>
                             {copied ? t.copied : t.copyBtn}
                           </button>
                           <button 
                             className="neo-button" 
-                            style={{ backgroundColor: 'var(--bg-inner)', color: '#FFF' }} 
+                            style={{ flex: 1, backgroundColor: 'var(--bg-inner)', color: '#FFF', padding: '0.5rem' }} 
                             onClick={() => handleGenerateEmail(true)}
                           >
                             {t.regenerateBtn}

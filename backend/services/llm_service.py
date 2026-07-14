@@ -63,6 +63,10 @@ Below is the text crawled from their website for context (use this to mention a 
 --- END OF WEBSITE TEXT ---
 
 Format the output as a clean, ready-to-copy email body (with a subject line at the top).
+Always end the email with the following exact signature:
+Serhat KABAİŞ
+Duygu GEZER
+edumanu.com
 """
 
     headers = {

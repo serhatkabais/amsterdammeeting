@@ -87,9 +87,25 @@ const cityColorMap = {
 };
 
 const getCityColor = (location) => {
-  if (!location) return '#94A3B8';
-  const city = location.split(',')[0].trim();
-  return cityColorMap[city] || '#94A3B8';
+  if (!location) return 'var(--text-muted)';
+  const lowerLoc = location.toLowerCase();
+  for (const [city, color] of Object.entries(cityColorMap)) {
+    if (lowerLoc.includes(city)) return color;
+  }
+  return 'var(--text-muted)';
+};
+
+const getStatusUI = (statusString) => {
+  if (!statusString || statusString.includes('İletişim Yok')) {
+    return { bg: 'var(--bg-inner)', color: 'var(--text-muted)', border: '1px dashed var(--border-color)', labelColor: 'var(--accent-yellow)' };
+  }
+  if (statusString.includes('Cevap')) {
+    return { bg: 'var(--accent-teal)', color: '#000', border: '1px solid #000', labelColor: '#000' };
+  }
+  if (statusString.includes('Gönderildi')) {
+    return { bg: 'var(--accent-yellow)', color: '#000', border: '1px solid #000', labelColor: '#000' };
+  }
+  return { bg: 'var(--accent-teal)', color: '#000', border: '1px solid #000', labelColor: '#000' };
 };
 
 const SparklesIcon = ({ size = 20, color = "var(--accent-yellow)" }) => (
@@ -706,11 +722,23 @@ function App() {
       })
     })
       .then(res => res.json())
-      .then(newMsg => {
+      .then(resData => {
+        const newMsg = resData.message;
         setCorrespondence(prev => ({
           ...prev,
           messages: [...(prev.messages || []), newMsg]
         }));
+        
+        if (resData.new_status) {
+          setTrackerData(prev => ({
+            ...prev,
+            [selectedCompanyId]: {
+              ...(prev[selectedCompanyId] || {}),
+              status: resData.new_status
+            }
+          }));
+        }
+
         setNewMessageContent('');
         setShowMessageForm(null);
       })
@@ -726,11 +754,21 @@ function App() {
       method: 'DELETE'
     })
       .then(res => res.json())
-      .then(() => {
+      .then(resData => {
         setCorrespondence(prev => ({
           ...prev,
           messages: (prev.messages || []).filter(m => m.id !== msgId)
         }));
+        
+        if (resData.new_status) {
+          setTrackerData(prev => ({
+            ...prev,
+            [selectedCompanyId]: {
+              ...(prev[selectedCompanyId] || {}),
+              status: resData.new_status
+            }
+          }));
+        }
       })
       .catch(err => console.error("Error deleting message:", err));
   };
@@ -1118,29 +1156,23 @@ function App() {
                             padding: '0.5rem', 
                             fontSize: '0.8rem', 
                             borderRadius: '8px',
-                            backgroundColor: trackerData[c.id] ? 'var(--accent-teal)' : 'var(--bg-inner)',
-                            color: trackerData[c.id] ? '#000' : 'var(--text-muted)',
+                            backgroundColor: getStatusUI(trackerData[c.id]?.status).bg,
+                            color: getStatusUI(trackerData[c.id]?.status).color,
                             marginTop: '0.5rem',
-                            border: trackerData[c.id] ? '1px solid #000' : '1px dashed var(--border-color)',
+                            border: getStatusUI(trackerData[c.id]?.status).border,
                             textAlign: 'center',
                             cursor: 'help'
                           }}
                           title="Statü detayını görmek veya AI ile güncellemek için firmaya tıklayın."
                         >
-                          <strong style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.2rem', color: trackerData[c.id] ? '#000' : 'var(--accent-yellow)' }}>
+                          <strong style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.2rem', color: getStatusUI(trackerData[c.id]?.status).labelColor }}>
                             Güncel Durum:
                           </strong>
-                          {trackerData[c.id] ? (
-                            <>
-                              <span>{trackerData[c.id]?.status}</span>
-                              {trackerData[c.id]?.meeting_date && (
-                                <span style={{ display: 'block', marginTop: '0.2rem', fontWeight: 'bold' }}>
-                                  📅 {trackerData[c.id]?.meeting_date}
-                                </span>
-                              )}
-                            </>
-                          ) : (
-                            <span>İletişim Yok</span>
+                          <span>{trackerData[c.id]?.status || 'İletişim Yok'}</span>
+                          {trackerData[c.id]?.meeting_date && (
+                            <span style={{ display: 'block', marginTop: '0.2rem', fontWeight: 'bold' }}>
+                              📅 {trackerData[c.id]?.meeting_date}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -1195,13 +1227,13 @@ function App() {
                       </div>
                       <div style={{
                         padding: '0.5rem 1rem',
-                        backgroundColor: trackerData[selectedCompany?.id] ? 'var(--accent-teal)' : 'var(--bg-inner)',
-                        color: trackerData[selectedCompany?.id] ? '#000' : 'var(--text-light)',
-                        border: '2px dashed var(--border-color)',
+                        backgroundColor: getStatusUI(trackerData[selectedCompany?.id]?.status).bg,
+                        color: getStatusUI(trackerData[selectedCompany?.id]?.status).color,
+                        border: getStatusUI(trackerData[selectedCompany?.id]?.status).border,
                         borderRadius: '10px',
                         textAlign: 'right'
                       }}>
-                        <strong style={{ fontSize: '0.75rem', display: 'block' }}>Güncel Durum:</strong>
+                        <strong style={{ fontSize: '0.75rem', display: 'block', color: getStatusUI(trackerData[selectedCompany?.id]?.status).labelColor }}>Güncel Durum:</strong>
                         <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{trackerData[selectedCompany?.id]?.status || 'İletişim Yok'}</span>
                         {trackerData[selectedCompany?.id]?.meeting_date && (
                           <div style={{ fontSize: '0.8rem', marginTop: '0.2rem' }}>📅 {trackerData[selectedCompany?.id]?.meeting_date}</div>

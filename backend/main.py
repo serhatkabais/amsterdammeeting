@@ -267,6 +267,22 @@ def get_correspondence(company_id: str):
         company_data["notes"] = []
     return company_data
 
+def update_status_from_messages(company_id: str, messages: list):
+    tracker_data = load_json(TRACKER_FILE)
+    if company_id not in tracker_data:
+        tracker_data[company_id] = {}
+        
+    if not messages:
+        tracker_data[company_id]["status"] = "İletişim Yok ⚪"
+    else:
+        has_received = any(m.get("type") == "received" for m in messages)
+        if has_received:
+            tracker_data[company_id]["status"] = "Cevap Geldi 🟢"
+        else:
+            tracker_data[company_id]["status"] = "Mail Gönderildi 🟡"
+            
+    save_json(TRACKER_FILE, tracker_data)
+    return tracker_data[company_id]["status"]
 
 @app.post("/api/correspondence/{company_id}/message")
 def add_correspondence_message(company_id: str, req: AddMessageRequest):
@@ -291,7 +307,11 @@ def add_correspondence_message(company_id: str, req: AddMessageRequest):
     }
     data[company_id]["messages"].append(new_msg)
     save_json(CORRESPONDENCE_FILE, data)
-    return new_msg
+    
+    # Update tracker status
+    new_status = update_status_from_messages(company_id, data[company_id]["messages"])
+    
+    return {"message": new_msg, "new_status": new_status}
 
 
 @app.delete("/api/correspondence/{company_id}/message/{msg_id}")
@@ -301,8 +321,11 @@ def delete_correspondence_message(company_id: str, msg_id: str):
         data[company_id]["messages"] = [
             m for m in data[company_id]["messages"] if m.get("id") != msg_id
         ]
-        save_json(CORRESPONDENCE_FILE, data)
-    return {"status": "success"}
+        
+        # Update tracker status
+        new_status = update_status_from_messages(company_id, data[company_id]["messages"])
+        return {"success": True, "new_status": new_status}
+    return {"success": False}
 
 
 @app.post("/api/correspondence/{company_id}/analyze")

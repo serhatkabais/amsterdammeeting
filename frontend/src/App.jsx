@@ -102,7 +102,7 @@ const getStatusUI = (statusString) => {
   if (statusString.includes('Cevap')) {
     return { bg: 'var(--accent-teal)', color: '#000', border: '1px solid #000', labelColor: '#000' };
   }
-  if (statusString.includes('Gönderildi')) {
+  if (statusString.includes('Gönderildi') || statusString.includes('İletildi')) {
     return { bg: 'var(--accent-yellow)', color: '#000', border: '1px solid #000', labelColor: '#000' };
   }
   return { bg: 'var(--accent-teal)', color: '#000', border: '1px solid #000', labelColor: '#000' };

@@ -985,19 +985,26 @@ function App() {
     
     return matchesSearch && matchesCategory && matchesCity && matchesTarget;
   }).sort((a, b) => {
+    // 1. "needs_reply" (Action required) at the absolute top
     const aNeedsReply = trackerData[a.id]?.needs_reply;
     const bNeedsReply = trackerData[b.id]?.needs_reply;
 
     if (aNeedsReply && !bNeedsReply) return -1;
     if (!aNeedsReply && bNeedsReply) return 1;
 
-    if (aNeedsReply && bNeedsReply) {
-      const aDate = trackerData[a.id]?.last_message_date || '';
-      const bDate = trackerData[b.id]?.last_message_date || '';
+    // 2. Sort the rest by date (newest first). 
+    // This naturally puts "İletişim Yok" (no dates) at the bottom.
+    const aDate = trackerData[a.id]?.last_message_date || trackerData[a.id]?.meeting_date || '';
+    const bDate = trackerData[b.id]?.last_message_date || trackerData[b.id]?.meeting_date || '';
+    
+    if (aDate && bDate) {
       return bDate.localeCompare(aDate);
     }
-    
-    return 0;
+    if (aDate && !bDate) return -1;
+    if (!aDate && bDate) return 1;
+
+    // 3. Fallback: Alphabetical order
+    return (a.name || '').localeCompare(b.name || '');
   });
 
   const selectedCompany = companies.find(c => c.id === selectedCompanyId);

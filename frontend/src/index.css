@@ -199,3 +199,14 @@ h1, h2, h3, .font-groovy {
     color: black !important;
   }
 }
+
+/* Animations */
+@keyframes pulseGentle {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.pulse-box {
+  animation: pulseGentle 1.8s infinite ease-in-out;
+}

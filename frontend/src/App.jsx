@@ -1265,6 +1265,7 @@ function App() {
 
                         {/* STATUS UI */}
                         <div 
+                          className={trackerData[c.id]?.needs_reply ? "pulse-box" : ""}
                           style={{ 
                             width: '100%',
                             padding: '0.5rem', 
@@ -1281,7 +1282,6 @@ function App() {
                         >
                           <strong style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', marginBottom: '0.2rem', color: getStatusUI(trackerData[c.id]?.status).labelColor }}>
                             Güncel Durum:
-                            {trackerData[c.id]?.needs_reply && <span className="blinking-emoji" title="Cevap Bekleniyor">🔔</span>}
                           </strong>
                           <span>{trackerData[c.id]?.status || 'İletişim Yok'}</span>
                           {trackerData[c.id]?.meeting_date && (
@@ -1340,17 +1340,19 @@ function App() {
                         <CompanyLogo domain={selectedCompany?.website} name={selectedCompany?.name} size={140} />
                         <h2 style={{ fontSize: '2.5rem', margin: 0, lineHeight: '1.1' }}>{selectedCompany?.name}</h2>
                       </div>
-                      <div style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: getStatusUI(trackerData[selectedCompany?.id]?.status).bg,
-                        color: getStatusUI(trackerData[selectedCompany?.id]?.status).color,
-                        border: getStatusUI(trackerData[selectedCompany?.id]?.status).border,
-                        borderRadius: '10px',
-                        textAlign: 'right'
-                      }}>
+                      <div 
+                        className={trackerData[selectedCompany?.id]?.needs_reply ? "pulse-box" : ""}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          backgroundColor: getStatusUI(trackerData[selectedCompany?.id]?.status).bg,
+                          color: getStatusUI(trackerData[selectedCompany?.id]?.status).color,
+                          border: getStatusUI(trackerData[selectedCompany?.id]?.status).border,
+                          borderRadius: '10px',
+                          textAlign: 'right'
+                        }}
+                      >
                         <strong style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: getStatusUI(trackerData[selectedCompany?.id]?.status).labelColor }}>
                           Güncel Durum:
-                          {trackerData[selectedCompany?.id]?.needs_reply && <span className="blinking-emoji" title="Cevap Bekleniyor">🔔</span>}
                         </strong>
                         <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{trackerData[selectedCompany?.id]?.status || 'İletişim Yok'}</span>
                         {trackerData[selectedCompany?.id]?.meeting_date && (

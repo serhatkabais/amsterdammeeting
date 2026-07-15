@@ -236,7 +236,22 @@ def get_strategy_reports():
 
 
 def get_tracker():
-    return load_json(TRACKER_FILE)
+    tracker_data = load_json(TRACKER_FILE)
+    corr_data = load_json(CORRESPONDENCE_FILE)
+    
+    # Dynamically compute needs_reply and last_message_date from correspondence
+    for company_id, corr in corr_data.items():
+        messages = corr.get("messages", [])
+        if not messages:
+            continue
+        if company_id not in tracker_data:
+            tracker_data[company_id] = {}
+        sorted_msgs = sorted(messages, key=lambda x: x.get("date", ""))
+        last_msg = sorted_msgs[-1]
+        tracker_data[company_id]["needs_reply"] = last_msg.get("type") == "received"
+        tracker_data[company_id]["last_message_date"] = last_msg.get("date", "")
+    
+    return tracker_data
 
 @app.post("/api/tracker")
 def update_tracker(req: TrackerUpdateModel):

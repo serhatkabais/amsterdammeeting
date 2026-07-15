@@ -1330,7 +1330,7 @@ function App() {
                       <div style={{ marginBottom: '2rem' }}>
                         <div style={sectionHeaderStyle('#FFF', 'var(--accent-orange)')}>
                           <span style={{ fontSize: '1.2rem' }}>🔴</span>
-                          {lang === 'tr' ? `Yanıt Bekliyor (${needsReplyCompanies.length})` : `Needs Your Reply (${needsReplyCompanies.length})`}
+                          {lang === 'tr' ? `Cevaplanacak (${needsReplyCompanies.length})` : `Needs Your Reply (${needsReplyCompanies.length})`}
                         </div>
                         <div className="grid-container">
                           {needsReplyCompanies.map(renderCompanyCard)}
@@ -1343,7 +1343,7 @@ function App() {
                       <div style={{ marginBottom: '2rem' }}>
                         <div style={sectionHeaderStyle('#FFF', 'var(--accent-yellow)')}>
                           <span style={{ fontSize: '1.2rem' }}>🟡</span>
-                          {lang === 'tr' ? `Cevap Bekleniyor (${waitingForReplyCompanies.length})` : `Waiting for Reply (${waitingForReplyCompanies.length})`}
+                          {lang === 'tr' ? `Bekleniyor (${waitingForReplyCompanies.length})` : `Waiting for Reply (${waitingForReplyCompanies.length})`}
                         </div>
                         <div className="grid-container">
                           {waitingForReplyCompanies.map(renderCompanyCard)}

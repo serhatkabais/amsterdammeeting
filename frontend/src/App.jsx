@@ -843,6 +843,17 @@ function App() {
             ...prev,
             analysis: data.analysis
           }));
+          if (data.status) {
+            setTrackerData(prev => ({
+              ...prev,
+              [selectedCompanyId]: {
+                ...(prev[selectedCompanyId] || {}),
+                status: data.status,
+                meeting_date: data.meeting_date || "",
+                needs_reply: data.needs_reply || false
+              }
+            }));
+          }
         }
         setAnalysisLoading(false);
       })

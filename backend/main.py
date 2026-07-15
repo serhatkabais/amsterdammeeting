@@ -365,13 +365,25 @@ def analyze_correspondence_endpoint(company_id: str, lang: str = "tr"):
         tracker_data = new_data
 
     if status_summary:
-        tracker_data[company_id] = {
-            "status": status_summary,
-            "meeting_date": meeting_date
-        }
+        needs_reply = False
+        if messages:
+            last_message = sorted(messages, key=lambda x: x.get("date", ""))[-1]
+            needs_reply = last_message.get("type") == "received"
+
+        if company_id not in tracker_data:
+            tracker_data[company_id] = {}
+            
+        tracker_data[company_id]["status"] = status_summary
+        tracker_data[company_id]["meeting_date"] = meeting_date
+        tracker_data[company_id]["needs_reply"] = needs_reply
         save_json(TRACKER_FILE, tracker_data)
 
-    return {"analysis": analysis_markdown, "status": status_summary, "meeting_date": meeting_date}
+    return {
+        "analysis": analysis_markdown,
+        "status": status_summary,
+        "meeting_date": meeting_date,
+        "needs_reply": tracker_data.get(company_id, {}).get("needs_reply", False)
+    }
 
 
 @app.post("/api/correspondence/{company_id}/generate-reply")

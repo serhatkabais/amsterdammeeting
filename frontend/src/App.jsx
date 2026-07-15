@@ -996,16 +996,24 @@ function App() {
     return (a.name || '').localeCompare(b.name || '');
   });
 
-  // Group companies into 3 sections
-  const needsReplyCompanies = sortByDate(filteredCompanies.filter(c => trackerData[c.id]?.needs_reply === true));
-  const waitingForReplyCompanies = sortByDate(filteredCompanies.filter(c => {
-    const t = trackerData[c.id];
-    return t && t.needs_reply !== true && t.last_message_date;
-  }));
-  const noContactCompanies = sortByDate(filteredCompanies.filter(c => {
-    const t = trackerData[c.id];
-    return !t || !t.last_message_date;
-  }));
+  // Group companies into 3 sections based on robust status checks
+  const isNeedsReply = (cId) => {
+    const t = trackerData[cId];
+    if (!t) return false;
+    const status = t.status || '';
+    return t.needs_reply === true || status.includes("Cevap Geldi") || status.includes("Olumlu") || status.includes("Olumsuz");
+  };
+
+  const isNoContact = (cId) => {
+    const t = trackerData[cId];
+    if (!t) return true;
+    const status = t.status || '';
+    return status === '' || status.includes("İletişim Yok");
+  };
+
+  const needsReplyCompanies = sortByDate(filteredCompanies.filter(c => isNeedsReply(c.id)));
+  const waitingForReplyCompanies = sortByDate(filteredCompanies.filter(c => !isNeedsReply(c.id) && !isNoContact(c.id)));
+  const noContactCompanies = sortByDate(filteredCompanies.filter(c => isNoContact(c.id)));
 
   const selectedCompany = companies.find(c => c.id === selectedCompanyId);
 
@@ -1265,7 +1273,7 @@ function App() {
 
                         {/* STATUS UI */}
                         <div 
-                          className={trackerData[c.id]?.needs_reply ? "pulse-box" : ""}
+                          className={isNeedsReply(c.id) ? "pulse-box" : ""}
                           style={{ 
                             width: '100%',
                             padding: '0.5rem', 
@@ -1406,7 +1414,7 @@ function App() {
                         <h2 style={{ fontSize: '2.5rem', margin: 0, lineHeight: '1.1' }}>{selectedCompany?.name}</h2>
                       </div>
                       <div 
-                        className={trackerData[selectedCompany?.id]?.needs_reply ? "pulse-box" : ""}
+                        className={isNeedsReply(selectedCompany?.id) ? "pulse-box" : ""}
                         style={{
                           padding: '0.5rem 1rem',
                           backgroundColor: getStatusUI(trackerData[selectedCompany?.id]?.status).bg,

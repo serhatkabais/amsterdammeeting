@@ -984,28 +984,28 @@ function App() {
     }
     
     return matchesSearch && matchesCategory && matchesCity && matchesTarget;
-  }).sort((a, b) => {
-    // 1. "needs_reply" (Action required) at the absolute top
-    const aNeedsReply = trackerData[a.id]?.needs_reply;
-    const bNeedsReply = trackerData[b.id]?.needs_reply;
+  });
 
-    if (aNeedsReply && !bNeedsReply) return -1;
-    if (!aNeedsReply && bNeedsReply) return 1;
-
-    // 2. Sort the rest by date (newest first). 
-    // This naturally puts "İletişim Yok" (no dates) at the bottom.
-    const aDate = trackerData[a.id]?.last_message_date || trackerData[a.id]?.meeting_date || '';
-    const bDate = trackerData[b.id]?.last_message_date || trackerData[b.id]?.meeting_date || '';
-    
-    if (aDate && bDate) {
-      return bDate.localeCompare(aDate);
-    }
+  // Sort by date helper
+  const sortByDate = (arr) => arr.sort((a, b) => {
+    const aDate = trackerData[a.id]?.last_message_date || '';
+    const bDate = trackerData[b.id]?.last_message_date || '';
+    if (aDate && bDate) return bDate.localeCompare(aDate);
     if (aDate && !bDate) return -1;
     if (!aDate && bDate) return 1;
-
-    // 3. Fallback: Alphabetical order
     return (a.name || '').localeCompare(b.name || '');
   });
+
+  // Group companies into 3 sections
+  const needsReplyCompanies = sortByDate(filteredCompanies.filter(c => trackerData[c.id]?.needs_reply === true));
+  const waitingForReplyCompanies = sortByDate(filteredCompanies.filter(c => {
+    const t = trackerData[c.id];
+    return t && t.needs_reply !== true && t.last_message_date;
+  }));
+  const noContactCompanies = sortByDate(filteredCompanies.filter(c => {
+    const t = trackerData[c.id];
+    return !t || !t.last_message_date;
+  }));
 
   const selectedCompany = companies.find(c => c.id === selectedCompanyId);
 
@@ -1200,17 +1200,17 @@ function App() {
 
               </div>
 
-              {/* Companies Grid */}
-              <div className="grid-container">
-                {filteredCompanies.map(c => {
-                  const category = getCompanyCategory(c.id);
-                  const getCategoryColor = (cat) => {
-                    if (cat === 'AI & Pedagogy') return 'var(--accent-yellow)';
-                    if (cat === 'STEAM & Immersive Tech') return 'var(--accent-orange)';
-                    if (cat === 'Language & Storytelling') return 'var(--accent-teal)';
-                    return 'var(--accent-purple)';
-                  };
+              {/* Companies Grid - Sectioned */}
+              {(() => {
+                const getCategoryColor = (cat) => {
+                  if (cat === 'AI & Pedagogy') return 'var(--accent-yellow)';
+                  if (cat === 'STEAM & Immersive Tech') return 'var(--accent-orange)';
+                  if (cat === 'Language & Storytelling') return 'var(--accent-teal)';
+                  return 'var(--accent-purple)';
+                };
 
+                const renderCompanyCard = (c) => {
+                  const category = getCompanyCategory(c.id);
                   return (
                     <div 
                       key={c.id} 
@@ -1223,10 +1223,10 @@ function App() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                           <span style={{ 
                             fontSize: '0.7rem', 
+                            letterSpacing: '0.08em', 
                             textTransform: 'uppercase', 
-                            letterSpacing: '0.5px', 
                             color: getCategoryColor(category),
-                            fontWeight: '700'
+                            fontWeight: 'bold'
                           }}>
                             {category}
                           </span>
@@ -1259,7 +1259,7 @@ function App() {
                         </div>
 
                         {/* FOCUS AREA */}
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', margin: 0, lineHeight: '1.5', flex: 1 }}>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', lineHeight: '1.5', margin: 0 }}>
                           {lang === 'tr' ? c.focus_area_tr : c.focus_area_en}
                         </p>
 
@@ -1269,14 +1269,18 @@ function App() {
                           style={{ 
                             width: '100%',
                             padding: '0.5rem', 
-                            fontSize: '0.8rem', 
-                            borderRadius: '8px',
                             backgroundColor: getStatusUI(trackerData[c.id]?.status).bg,
                             color: getStatusUI(trackerData[c.id]?.status).color,
-                            marginTop: '0.5rem',
                             border: getStatusUI(trackerData[c.id]?.status).border,
+                            borderRadius: '8px',
                             textAlign: 'center',
-                            cursor: 'help'
+                            cursor: 'pointer'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedCompanyId(c.id);
+                            fetchCorrespondence(c.id);
+                            setShowCorrespondenceModal(true);
                           }}
                           title="Statü detayını görmek veya AI ile güncellemek için firmaya tıklayın."
                         >
@@ -1302,8 +1306,66 @@ function App() {
                       </div>
                     </div>
                   );
-                })}
-              </div>
+                };
+
+                const sectionHeaderStyle = (color, borderColor) => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.75rem 1.25rem',
+                  marginBottom: '1rem',
+                  borderLeft: `4px solid ${borderColor}`,
+                  backgroundColor: `${borderColor}15`,
+                  borderRadius: '0 8px 8px 0',
+                  color: color,
+                  fontWeight: '600',
+                  fontSize: '1rem',
+                  fontFamily: "'Space Mono', monospace"
+                });
+
+                return (
+                  <>
+                    {/* Section 1: Needs Reply */}
+                    {needsReplyCompanies.length > 0 && (
+                      <div style={{ marginBottom: '2rem' }}>
+                        <div style={sectionHeaderStyle('#FFF', 'var(--accent-orange)')}>
+                          <span style={{ fontSize: '1.2rem' }}>🔴</span>
+                          {lang === 'tr' ? `Yanıt Bekliyor (${needsReplyCompanies.length})` : `Needs Your Reply (${needsReplyCompanies.length})`}
+                        </div>
+                        <div className="grid-container">
+                          {needsReplyCompanies.map(renderCompanyCard)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Section 2: Waiting for Reply */}
+                    {waitingForReplyCompanies.length > 0 && (
+                      <div style={{ marginBottom: '2rem' }}>
+                        <div style={sectionHeaderStyle('#FFF', 'var(--accent-yellow)')}>
+                          <span style={{ fontSize: '1.2rem' }}>🟡</span>
+                          {lang === 'tr' ? `Cevap Bekleniyor (${waitingForReplyCompanies.length})` : `Waiting for Reply (${waitingForReplyCompanies.length})`}
+                        </div>
+                        <div className="grid-container">
+                          {waitingForReplyCompanies.map(renderCompanyCard)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Section 3: No Contact */}
+                    {noContactCompanies.length > 0 && (
+                      <div style={{ marginBottom: '2rem' }}>
+                        <div style={sectionHeaderStyle('var(--text-muted)', 'var(--text-muted)')}>
+                          <span style={{ fontSize: '1.2rem' }}>⚪</span>
+                          {lang === 'tr' ? `Henüz İletişim Yok (${noContactCompanies.length})` : `No Contact Yet (${noContactCompanies.length})`}
+                        </div>
+                        <div className="grid-container">
+                          {noContactCompanies.map(renderCompanyCard)}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           ) : (
             // Company Detail View

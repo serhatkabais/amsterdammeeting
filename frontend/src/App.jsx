@@ -1312,15 +1312,18 @@ function App() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.75rem',
-                  padding: '0.75rem 1.25rem',
-                  marginBottom: '1rem',
-                  borderLeft: `4px solid ${borderColor}`,
-                  backgroundColor: `${borderColor}15`,
+                  padding: '1rem 1.5rem',
+                  marginBottom: '1.25rem',
+                  marginTop: '0.5rem',
+                  borderLeft: `5px solid ${borderColor}`,
+                  borderBottom: `2px solid ${borderColor}40`,
+                  backgroundColor: `${borderColor}20`,
                   borderRadius: '0 8px 8px 0',
                   color: color,
-                  fontWeight: '600',
-                  fontSize: '1rem',
-                  fontFamily: "'Space Mono', monospace"
+                  fontWeight: '700',
+                  fontSize: '1.15rem',
+                  fontFamily: "'Space Mono', monospace",
+                  letterSpacing: '0.03em'
                 });
 
                 return (

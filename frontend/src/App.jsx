@@ -984,6 +984,20 @@ function App() {
     }
     
     return matchesSearch && matchesCategory && matchesCity && matchesTarget;
+  }).sort((a, b) => {
+    const aNeedsReply = trackerData[a.id]?.needs_reply;
+    const bNeedsReply = trackerData[b.id]?.needs_reply;
+
+    if (aNeedsReply && !bNeedsReply) return -1;
+    if (!aNeedsReply && bNeedsReply) return 1;
+
+    if (aNeedsReply && bNeedsReply) {
+      const aDate = trackerData[a.id]?.last_message_date || '';
+      const bDate = trackerData[b.id]?.last_message_date || '';
+      return bDate.localeCompare(aDate);
+    }
+    
+    return 0;
   });
 
   const selectedCompany = companies.find(c => c.id === selectedCompanyId);

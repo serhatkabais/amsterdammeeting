@@ -287,6 +287,7 @@ def update_status_from_messages(company_id: str, messages: list):
         # Determine if a reply is needed (last message is received)
         last_message = sorted(messages, key=lambda x: x.get("date", ""))[-1]
         tracker_data[company_id]["needs_reply"] = last_message.get("type") == "received"
+        tracker_data[company_id]["last_message_date"] = last_message.get("date", "")
             
     save_json(TRACKER_FILE, tracker_data)
     return tracker_data[company_id]["status"], tracker_data[company_id].get("needs_reply", False)
@@ -366,9 +367,11 @@ def analyze_correspondence_endpoint(company_id: str, lang: str = "tr"):
 
     if status_summary:
         needs_reply = False
+        last_message_date = ""
         if messages:
             last_message = sorted(messages, key=lambda x: x.get("date", ""))[-1]
             needs_reply = last_message.get("type") == "received"
+            last_message_date = last_message.get("date", "")
 
         if company_id not in tracker_data:
             tracker_data[company_id] = {}
@@ -376,6 +379,7 @@ def analyze_correspondence_endpoint(company_id: str, lang: str = "tr"):
         tracker_data[company_id]["status"] = status_summary
         tracker_data[company_id]["meeting_date"] = meeting_date
         tracker_data[company_id]["needs_reply"] = needs_reply
+        tracker_data[company_id]["last_message_date"] = last_message_date
         save_json(TRACKER_FILE, tracker_data)
 
     return {

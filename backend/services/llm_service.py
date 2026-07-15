@@ -105,6 +105,85 @@ edumanu.com
     except Exception as e:
         return f"Error occurred during LLM call: {str(e)}"
 
+def generate_reply_draft(
+    company_name: str,
+    messages: list,
+    rag_data: dict,
+    custom_notes: str = ""
+) -> str:
+    """
+    Calls OpenRouter API to generate a realistic, warm, B1 level English reply draft based on previous correspondence.
+    """
+    if not OPENROUTER_API_KEY:
+        return "Error: OpenRouter API key not configured in backend/.env file."
+
+    # Format the message history
+    history_text = ""
+    for msg in sorted(messages, key=lambda x: x.get("date", "")):
+        sender = "Serhat/Duygu (Us)" if msg.get("type") == "sent" else f"{company_name} (Them)"
+        history_text += f"--- {sender} on {msg.get('date', 'Unknown Date')} ---\n{msg.get('content', '')}\n\n"
+
+    system_prompt = f"""You are a professional assistant helping Serhat Kabaiş and Duygu Kabaiş write a warm, realistic, and highly concise reply to a Dutch EdTech company. Do NOT mention Zafer Karadayı, Nara, or Nara XR in the email under any circumstances.
+
+Here is the complete RAG profile data for both individuals and their goals:
+{json.dumps(rag_data, ensure_ascii=False, indent=2)}
+
+Reply rules (CRITICAL FOR QUALITY):
+1. **Context-Aware:** Read the previous conversation history and directly address what the company asked or said in their last message.
+2. **Strict Brevity:** Keep the reply extremely short and direct. Maximum 2-3 paragraphs.
+3. **Realistic & Natural Tone:** Avoid corporate buzzwords, excessive compliments, or sales pitch language. The tone must be friendly and authentic.
+4. **B1 English Level (Imperfect & Authentic):** Use B1 English primarily, with occasional B2 words. CRITICAL: The English should NOT be perfect or sound like a native speaker/AI. It must sound like an authentic non-native speaker who communicates well but makes minor natural phrasing imperfections.
+"""
+
+    user_prompt = f"""Write a reply email for the following company:
+- Company Name: {company_name}
+
+Here is the conversation history so far:
+{history_text}
+"""
+    if custom_notes:
+        user_prompt += f"\n- Special Instructions/Focus for this reply (CRITICAL: You MUST strictly incorporate these requests/points in the email): {custom_notes}\n"
+
+    user_prompt += f"""
+Format the output as a clean, ready-to-copy email body. Do not include subject lines unless necessary (like "Re: ...").
+Always end the email with the following exact signature:
+Serhat KABAİŞ
+Duygu GEZER
+edumanu.com
+"""
+
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "google/gemini-3.1-flash-lite",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+        "temperature": 0.7
+    }
+
+    try:
+        response = requests.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers=headers,
+            json=payload,
+            timeout=25
+        )
+        if response.status_code != 200:
+            return f"Error: OpenRouter API returned code {response.status_code}. Detail: {response.text}"
+        
+        result_json = response.json()
+        choices = result_json.get("choices", [])
+        if choices:
+            return choices[0].get("message", {}).get("content", "Error: Empty content from model.")
+        return "Error: No choices in response."
+    except Exception as e:
+        return f"Error occurred during LLM call: {str(e)}"
+
 def generate_strategy_report(
     company_name: str,
     company_focus: str,

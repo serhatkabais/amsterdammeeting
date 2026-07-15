@@ -158,6 +158,8 @@ const translations = {
     regenerateBtn: "🔄 Yeniden Üret",
     downloadPdfBtn: "PDF İndir",
     strategyHeader: "Şirkete Özel Görüşme & Hazırlık Stratejisi (Türkçe)",
+    generateReplyBtn: "Cevap Taslağı Oluştur",
+    generatingReply: "Taslak oluşturuluyor...",
     
     ragTitle: "RAG Bilgi Deposu Yönetimi",
     ragInfo: "Aşağıdaki alanlar yapay zekaya (LLM) mektup oluştururken besleneceği kişisel profillerinizi ve Hollanda seyahat hedeflerini içerir.",
@@ -242,6 +244,8 @@ const translations = {
     regenerateBtn: "🔄 Regenerate",
     downloadPdfBtn: "Download PDF",
     strategyHeader: "Company Specific Strategy (Turkish)",
+    generateReplyBtn: "Generate Reply Draft",
+    generatingReply: "Generating draft...",
 
     ragTitle: "RAG Knowledge Base Management",
     ragInfo: "These fields contain profiles and Netherlands visit goals used by the AI to customize the emails.",
@@ -461,6 +465,7 @@ function App() {
 
   // Email Generator State
   const [emailLoading, setEmailLoading] = useState(false);
+  const [isGeneratingReply, setIsGeneratingReply] = useState(false);
   const [generatedEmail, setGeneratedEmail] = useState('');
   const [copied, setCopied] = useState(false);
   const [customEmailNotes, setCustomEmailNotes] = useState('');
@@ -847,6 +852,33 @@ function App() {
       });
   };
 
+  // Generate Reply Draft
+  const handleGenerateReplyDraft = () => {
+    if (!selectedCompanyId) return;
+    setIsGeneratingReply(true);
+
+    fetch(`${API_BASE}/correspondence/${selectedCompanyId}/generate-reply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        company_id: selectedCompanyId,
+        custom_notes: ""
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.reply_draft) {
+          setNewMessageContent(data.reply_draft);
+          setShowMessageForm('sent');
+        }
+        setIsGeneratingReply(false);
+      })
+      .catch(err => {
+        console.error("Error generating reply:", err);
+        setIsGeneratingReply(false);
+      });
+  };
+
   // Toggle Voice Recording using Web Speech API
   const handleToggleRecording = () => {
     if (isRecording) {
@@ -1215,8 +1247,9 @@ function App() {
                           }}
                           title="Statü detayını görmek veya AI ile güncellemek için firmaya tıklayın."
                         >
-                          <strong style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.2rem', color: getStatusUI(trackerData[c.id]?.status).labelColor }}>
+                          <strong style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', marginBottom: '0.2rem', color: getStatusUI(trackerData[c.id]?.status).labelColor }}>
                             Güncel Durum:
+                            {trackerData[c.id]?.needs_reply && <span className="blinking-emoji" title="Cevap Bekleniyor">🔔</span>}
                           </strong>
                           <span>{trackerData[c.id]?.status || 'İletişim Yok'}</span>
                           {trackerData[c.id]?.meeting_date && (
@@ -1283,7 +1316,10 @@ function App() {
                         borderRadius: '10px',
                         textAlign: 'right'
                       }}>
-                        <strong style={{ fontSize: '0.75rem', display: 'block', color: getStatusUI(trackerData[selectedCompany?.id]?.status).labelColor }}>Güncel Durum:</strong>
+                        <strong style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: getStatusUI(trackerData[selectedCompany?.id]?.status).labelColor }}>
+                          Güncel Durum:
+                          {trackerData[selectedCompany?.id]?.needs_reply && <span className="blinking-emoji" title="Cevap Bekleniyor">🔔</span>}
+                        </strong>
                         <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{trackerData[selectedCompany?.id]?.status || 'İletişim Yok'}</span>
                         {trackerData[selectedCompany?.id]?.meeting_date && (
                           <div style={{ fontSize: '0.8rem', marginTop: '0.2rem' }}>📅 {formatDate(trackerData[selectedCompany?.id]?.meeting_date)}</div>
@@ -1578,13 +1614,23 @@ function App() {
                             ⚠️ {t.analysisEmpty}
                           </p>
                         ) : (
-                          <button 
-                            className="neo-button"
-                            style={{ width: '100%', padding: '0.8rem' }}
-                            onClick={handleAnalyzeCorrespondence}
-                          >
-                            {t.analysisBtn}
-                          </button>
+                          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                            <button 
+                              className="neo-button"
+                              style={{ flex: 1, padding: '0.8rem' }}
+                              onClick={handleAnalyzeCorrespondence}
+                            >
+                              {t.analysisBtn}
+                            </button>
+                            <button 
+                              className="neo-button"
+                              style={{ flex: 1, padding: '0.8rem', backgroundColor: 'var(--accent-yellow)', color: '#000', borderColor: '#000' }}
+                              onClick={handleGenerateReplyDraft}
+                              disabled={isGeneratingReply}
+                            >
+                              {isGeneratingReply ? `⏳ ${t.generatingReply}` : `✍️ ${t.generateReplyBtn}`}
+                            </button>
+                          </div>
                         )}
                       </div>
                     )}
@@ -1622,13 +1668,23 @@ function App() {
                           <ReactMarkdown>{correspondence.analysis}</ReactMarkdown>
                         </div>
                         {correspondence.messages && correspondence.messages.length > 0 && (
-                          <button 
-                            className="neo-button" 
-                            style={{ alignSelf: 'flex-end', fontSize: '0.8rem', padding: '0.4rem 0.8rem', backgroundColor: 'var(--bg-inner)', color: '#FFF' }}
-                            onClick={handleAnalyzeCorrespondence}
-                          >
-                            🔄 {lang === 'tr' ? 'Yeniden Analiz Et' : 'Re-Analyze'}
-                          </button>
+                          <div style={{ display: 'flex', gap: '1rem', alignSelf: 'flex-end' }}>
+                            <button 
+                              className="neo-button" 
+                              style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', backgroundColor: 'var(--accent-yellow)', color: '#000', borderColor: '#000' }}
+                              onClick={handleGenerateReplyDraft}
+                              disabled={isGeneratingReply}
+                            >
+                              {isGeneratingReply ? `⏳ ${t.generatingReply}` : `✍️ ${t.generateReplyBtn}`}
+                            </button>
+                            <button 
+                              className="neo-button" 
+                              style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', backgroundColor: 'var(--bg-inner)', color: '#FFF' }}
+                              onClick={handleAnalyzeCorrespondence}
+                            >
+                              🔄 {lang === 'tr' ? 'Yeniden Analiz Et' : 'Re-Analyze'}
+                            </button>
+                          </div>
                         )}
                       </div>
                     )}

@@ -12,7 +12,8 @@ from backend.services.llm_service import (
     generate_strategy_report,
     chat_interview,
     analyze_correspondence,
-    format_voice_note
+    format_voice_note,
+    generate_reply_draft
 )
 
 app = FastAPI(title="Dutch EdTech Outreach API")
@@ -275,6 +276,7 @@ def update_status_from_messages(company_id: str, messages: list):
         
     if not messages:
         tracker_data[company_id]["status"] = "İletişim Yok ⚪"
+        tracker_data[company_id]["needs_reply"] = False
     else:
         has_received = any(m.get("type") == "received" for m in messages)
         if has_received:
@@ -282,8 +284,12 @@ def update_status_from_messages(company_id: str, messages: list):
         else:
             tracker_data[company_id]["status"] = "Mail Gönderildi 🟡"
             
+        # Determine if a reply is needed (last message is received)
+        last_message = sorted(messages, key=lambda x: x.get("date", ""))[-1]
+        tracker_data[company_id]["needs_reply"] = last_message.get("type") == "received"
+            
     save_json(TRACKER_FILE, tracker_data)
-    return tracker_data[company_id]["status"]
+    return tracker_data[company_id]["status"], tracker_data[company_id].get("needs_reply", False)
 
 @app.post("/api/correspondence/{company_id}/message")
 def add_correspondence_message(company_id: str, req: AddMessageRequest):
@@ -310,9 +316,9 @@ def add_correspondence_message(company_id: str, req: AddMessageRequest):
     save_json(CORRESPONDENCE_FILE, data)
     
     # Update tracker status
-    new_status = update_status_from_messages(company_id, data[company_id]["messages"])
+    new_status, needs_reply = update_status_from_messages(company_id, data[company_id]["messages"])
     
-    return {"message": new_msg, "new_status": new_status}
+    return {"message": new_msg, "new_status": new_status, "needs_reply": needs_reply}
 
 
 @app.delete("/api/correspondence/{company_id}/message/{msg_id}")
@@ -324,8 +330,8 @@ def delete_correspondence_message(company_id: str, msg_id: str):
         ]
         
         # Update tracker status
-        new_status = update_status_from_messages(company_id, data[company_id]["messages"])
-        return {"success": True, "new_status": new_status}
+        new_status, needs_reply = update_status_from_messages(company_id, data[company_id]["messages"])
+        return {"success": True, "new_status": new_status, "needs_reply": needs_reply}
     return {"success": False}
 
 
@@ -367,6 +373,27 @@ def analyze_correspondence_endpoint(company_id: str, lang: str = "tr"):
 
     return {"analysis": analysis_markdown, "status": status_summary, "meeting_date": meeting_date}
 
+
+@app.post("/api/correspondence/{company_id}/generate-reply")
+def generate_reply_endpoint(company_id: str, req: EmailGenerateRequest):
+    data = load_json(CORRESPONDENCE_FILE)
+    company_data = data.get(company_id, {"messages": [], "analysis": "", "notes": []})
+    messages = company_data.get("messages", [])
+    
+    companies = load_json(COMPANIES_FILE)
+    company = next((c for c in companies if c.get("id") == company_id), None)
+    company_name = company.get("name", "Bilinmeyen Şirket") if company else "Bilinmeyen Şirket"
+    
+    rag_data = load_json(RAG_FILE)
+    
+    reply_draft = generate_reply_draft(
+        company_name=company_name,
+        messages=messages,
+        rag_data=rag_data,
+        custom_notes=req.custom_notes
+    )
+    
+    return {"reply_draft": reply_draft}
 
 @app.post("/api/correspondence/{company_id}/voice-note")
 def process_voice_note_endpoint(company_id: str, req: VoiceNoteRequest, lang: str = "tr"):

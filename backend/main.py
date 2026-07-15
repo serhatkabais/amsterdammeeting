@@ -344,6 +344,7 @@ def delete_correspondence_message(company_id: str, msg_id: str):
         data[company_id]["messages"] = [
             m for m in data[company_id]["messages"] if m.get("id") != msg_id
         ]
+        save_json(CORRESPONDENCE_FILE, data)
         
         # Update tracker status
         new_status, needs_reply = update_status_from_messages(company_id, data[company_id]["messages"])

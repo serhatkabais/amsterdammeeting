@@ -855,7 +855,8 @@ function App() {
                 meeting_date: data.meeting_date || "",
                 needs_reply: data.needs_reply || false,
                 analysis: data.analysis || "",
-                dashboard_summary: data.dashboard_summary || ""
+                dashboard_summary: data.dashboard_summary || "",
+                has_mutual_correspondence: data.has_mutual_correspondence || false
               }
             }));
           }
@@ -1309,15 +1310,26 @@ function App() {
                         </div>
                       </div>
 
-                      {trackerData[c.id]?.dashboard_summary ? (
-                        <div style={{ borderTop: '2px solid var(--bg-inner)', paddingTop: '1rem', marginTop: '1rem' }}>
-                          <p className="text-mono" style={{ fontSize: '0.8rem', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            <SparklesIcon size={16} /> {lang === 'tr' ? 'Son Durum Özeti (AI)' : 'Latest Status (AI)'}
-                          </p>
-                          <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '0.3rem', display: '-webkit-box', WebkitLineClamp: '4', WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.5' }}>
-                            {trackerData[c.id].dashboard_summary}
-                          </p>
-                        </div>
+                      {trackerData[c.id]?.has_mutual_correspondence ? (
+                         trackerData[c.id]?.dashboard_summary ? (
+                           <div style={{ borderTop: '2px solid var(--bg-inner)', paddingTop: '1rem', marginTop: '1rem' }}>
+                             <p className="text-mono" style={{ fontSize: '0.8rem', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                               <SparklesIcon size={16} /> {lang === 'tr' ? 'Son Durum Özeti (AI)' : 'Latest Status (AI)'}
+                             </p>
+                             <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '0.3rem', display: '-webkit-box', WebkitLineClamp: '4', WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.5' }}>
+                               {trackerData[c.id].dashboard_summary}
+                             </p>
+                           </div>
+                         ) : (
+                           <div style={{ borderTop: '2px solid var(--bg-inner)', paddingTop: '1rem', marginTop: '1rem' }}>
+                             <p className="text-mono" style={{ fontSize: '0.8rem', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                               <SparklesIcon size={16} /> {lang === 'tr' ? 'Son Durum Özeti (AI)' : 'Latest Status (AI)'}
+                             </p>
+                             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '0.3rem' }}>
+                               {lang === 'tr' ? 'Özet oluşturulması için şirket künyesine tıklayıp AI analizi yapın.' : 'Click the company to run AI analysis and generate a summary.'}
+                             </p>
+                           </div>
+                         )
                       ) : (
                         <div style={{ borderTop: '2px solid var(--bg-inner)', paddingTop: '1rem', marginTop: '1rem' }}>
                           <p className="text-mono" style={{ fontSize: '0.8rem', color: 'var(--accent-yellow)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>

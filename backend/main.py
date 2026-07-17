@@ -252,6 +252,7 @@ def get_tracker():
         tracker_data[company_id]["last_message_date"] = last_msg.get("date", "")
         tracker_data[company_id]["analysis"] = corr.get("analysis", "")
         tracker_data[company_id]["dashboard_summary"] = corr.get("dashboard_summary", "")
+        tracker_data[company_id]["has_mutual_correspondence"] = any(m.get("type") == "received" for m in messages)
     
     return tracker_data
 
@@ -401,6 +402,7 @@ def analyze_correspondence_endpoint(company_id: str, lang: str = "tr"):
         tracker_data[company_id]["needs_reply"] = needs_reply
         tracker_data[company_id]["last_message_date"] = last_message_date
         tracker_data[company_id]["dashboard_summary"] = dashboard_summary
+        tracker_data[company_id]["has_mutual_correspondence"] = any(m.get("type") == "received" for m in messages)
         save_json(TRACKER_FILE, tracker_data)
 
     return {
@@ -408,7 +410,8 @@ def analyze_correspondence_endpoint(company_id: str, lang: str = "tr"):
         "dashboard_summary": dashboard_summary,
         "status": status_summary,
         "meeting_date": meeting_date,
-        "needs_reply": tracker_data.get(company_id, {}).get("needs_reply", False)
+        "needs_reply": tracker_data.get(company_id, {}).get("needs_reply", False),
+        "has_mutual_correspondence": tracker_data.get(company_id, {}).get("has_mutual_correspondence", False)
     }
 
 

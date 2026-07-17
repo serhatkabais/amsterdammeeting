@@ -1006,8 +1006,10 @@ function App() {
   const isNeedsReply = (cId) => {
     const t = trackerData[cId];
     if (!t) return false;
+    // User requested: If they replied in any way (mutual correspondence), they go to the top.
+    // We fall back to status string checks just in case.
     const status = t.status || '';
-    return t.needs_reply === true || status.includes("Cevap Geldi") || status.includes("Olumlu") || status.includes("Olumsuz");
+    return t.has_mutual_correspondence === true || t.needs_reply === true || status.includes("Cevap Geldi") || status.includes("Olumlu") || status.includes("Olumsuz");
   };
 
   const isNoContact = (cId) => {

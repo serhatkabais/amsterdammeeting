@@ -370,6 +370,7 @@ You MUST return your response as a valid JSON object EXACTLY matching this struc
 {{
   "status_summary": "A short 3-6 word summary (e.g. 'Mail Gönderildi', 'Olumlu - Görüşme Planlandı', 'Görüşme Tamamlandı - Olumsuz')",
   "meeting_date": "YYYY-MM-DD if a meeting date in 2026 is mentioned, otherwise empty string",
+  "dashboard_summary": "A concise 1-2 sentence summary of the latest status, suitable for displaying on a dashboard card.",
   "analysis_markdown": "Your detailed analysis in {language} with these sections: 1. İlgi Düzeyi, 2. Ton Analizi, 3. Sonraki Adımlar, 4. Genel Durum"
 }}"""
 

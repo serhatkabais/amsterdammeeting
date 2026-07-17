@@ -250,6 +250,8 @@ def get_tracker():
         last_msg = sorted_msgs[-1]
         tracker_data[company_id]["needs_reply"] = last_msg.get("type") == "received"
         tracker_data[company_id]["last_message_date"] = last_msg.get("date", "")
+        tracker_data[company_id]["analysis"] = corr.get("analysis", "")
+        tracker_data[company_id]["dashboard_summary"] = corr.get("dashboard_summary", "")
     
     return tracker_data
 
@@ -367,10 +369,12 @@ def analyze_correspondence_endpoint(company_id: str, lang: str = "tr"):
     status_summary = analysis_result.get("status_summary", "")
     meeting_date = analysis_result.get("meeting_date", "")
     analysis_markdown = analysis_result.get("analysis_markdown", "")
+    dashboard_summary = analysis_result.get("dashboard_summary", "")
 
     if company_id not in data:
         data[company_id] = {"messages": [], "analysis": "", "notes": []}
     data[company_id]["analysis"] = analysis_markdown
+    data[company_id]["dashboard_summary"] = dashboard_summary
     save_json(CORRESPONDENCE_FILE, data)
     
     # Auto-update tracker
@@ -396,10 +400,12 @@ def analyze_correspondence_endpoint(company_id: str, lang: str = "tr"):
         tracker_data[company_id]["meeting_date"] = meeting_date
         tracker_data[company_id]["needs_reply"] = needs_reply
         tracker_data[company_id]["last_message_date"] = last_message_date
+        tracker_data[company_id]["dashboard_summary"] = dashboard_summary
         save_json(TRACKER_FILE, tracker_data)
 
     return {
         "analysis": analysis_markdown,
+        "dashboard_summary": dashboard_summary,
         "status": status_summary,
         "meeting_date": meeting_date,
         "needs_reply": tracker_data.get(company_id, {}).get("needs_reply", False)

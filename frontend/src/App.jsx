@@ -1318,15 +1318,6 @@ function App() {
                             {trackerData[c.id].dashboard_summary}
                           </p>
                         </div>
-                      ) : trackerData[c.id]?.analysis ? (
-                        <div style={{ borderTop: '2px solid var(--bg-inner)', paddingTop: '1rem', marginTop: '1rem' }}>
-                          <p className="text-mono" style={{ fontSize: '0.8rem', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            <SparklesIcon size={16} /> {lang === 'tr' ? 'Son Durum (AI Analizi)' : 'Latest Status (AI)'}
-                          </p>
-                          <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '0.3rem', display: '-webkit-box', WebkitLineClamp: '4', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                            {trackerData[c.id].analysis}
-                          </p>
-                        </div>
                       ) : (
                         <div style={{ borderTop: '2px solid var(--bg-inner)', paddingTop: '1rem', marginTop: '1rem' }}>
                           <p className="text-mono" style={{ fontSize: '0.8rem', color: 'var(--accent-yellow)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>

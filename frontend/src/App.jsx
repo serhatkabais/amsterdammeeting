@@ -2273,9 +2273,13 @@ function MainApp({ user, onLogout }) {
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [authStatus, setAuthStatus] = useState('loading'); // loading, pending, approved, unauthenticated
+  const [authStatus, setAuthStatus] = useState('loading'); // loading, pending, approved, unauthenticated, missing_config
 
   useEffect(() => {
+    if (!auth) {
+      setAuthStatus('missing_config');
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         // user is logged into Google, now check our backend
@@ -2300,6 +2304,51 @@ export default function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  if (authStatus === 'missing_config') {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        color: 'var(--accent-orange)', 
+        fontFamily: 'var(--font-mono)', 
+        padding: '2rem', 
+        textAlign: 'center',
+        background: 'var(--bg-main)'
+      }}>
+        <h2 style={{ marginBottom: '1rem', color: 'var(--accent-orange)' }}>⚙️ Firebase Yapılandırması Eksik!</h2>
+        <p style={{ maxWidth: '600px', margin: '0.5rem 0 1.5rem 0', color: 'var(--text-light)', lineHeight: '1.6', fontSize: '0.95rem' }}>
+          Sistem şu anda Google Authentication için gerekli ortam değişkenlerini (Environment Variables) okuyamadı. 
+          Lütfen Vercel veya yerel ortamınızda aşağıdaki değişkenleri tanımladığınızdan emin olun:
+        </p>
+        <div style={{ 
+          background: 'var(--bg-panel)', 
+          border: 'var(--border-thick)', 
+          padding: '1.5rem', 
+          borderRadius: '12px', 
+          textAlign: 'left', 
+          fontSize: '0.9rem', 
+          color: 'var(--text-light)',
+          boxShadow: '4px 4px 0px rgba(0,0,0,0.5)',
+          maxWidth: '500px',
+          width: '100%'
+        }}>
+          <strong>Gerekli Değişkenler:</strong>
+          <ul style={{ marginTop: '0.5rem', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
+            <li><code>VITE_FIREBASE_API_KEY</code></li>
+            <li><code>VITE_FIREBASE_AUTH_DOMAIN</code></li>
+            <li><code>VITE_FIREBASE_PROJECT_ID</code></li>
+            <li><code>VITE_FIREBASE_STORAGE_BUCKET</code></li>
+            <li><code>VITE_FIREBASE_MESSAGING_SENDER_ID</code></li>
+            <li><code>VITE_FIREBASE_APP_ID</code></li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
 
   if (authStatus === 'loading') return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-yellow)' }}>Yükleniyor...</div>;
   if (authStatus === 'unauthenticated' || !user) return <AuthScreen onLoginSuccess={() => setAuthStatus('loading')} />;

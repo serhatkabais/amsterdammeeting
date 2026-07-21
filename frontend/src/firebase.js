@@ -15,11 +15,15 @@ let auth;
 let googleProvider;
 
 try {
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  googleProvider = new GoogleAuthProvider();
+  if (firebaseConfig.apiKey) {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
+  } else {
+    console.warn("Firebase configuration is missing. Skipping initialization.");
+  }
 } catch (error) {
-  console.warn("Firebase configuration is missing or invalid. Please check your environment variables.", error);
+  console.warn("Firebase configuration is invalid. Please check your environment variables.", error);
 }
 
 export const signInWithGoogle = async () => {

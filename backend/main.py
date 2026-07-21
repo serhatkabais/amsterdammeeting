@@ -33,6 +33,7 @@ RAG_FILE = os.path.join(DATA_DIR, "rag_store.json")
 REPORTS_FILE = os.path.join(DATA_DIR, "strategy_reports.json")
 TRACKER_FILE = os.path.join(DATA_DIR, "tracker_data.json")
 CORRESPONDENCE_FILE = os.path.join(DATA_DIR, "correspondence_data.json")
+USERS_FILE = os.path.join(DATA_DIR, "users_data.json")
 
 FIREBASE_URL = os.getenv("FIREBASE_URL")
 FIREBASE_SECRET = os.getenv("FIREBASE_SECRET")
@@ -90,6 +91,17 @@ class RAGUpdateModel(BaseModel):
     serhat_kabais: dict
     duygu_kabais: dict
     netherlands_visit_goals: dict = {}
+
+class DraftReplyRequest(BaseModel):
+    company_id: str
+
+class LoginRequest(BaseModel):
+    email: str
+    name: str = ""
+
+class ApproveRequest(BaseModel):
+    email: str
+    status: str
 
 class ChatInterviewRequest(BaseModel):
     company_id: str
@@ -466,6 +478,44 @@ def process_voice_note_endpoint(company_id: str, req: VoiceNoteRequest, lang: st
     
     return new_note
 
+
+
+# ==========================================
+# AUTH & APPROVAL ENDPOINTS
+# ==========================================
+
+@app.post("/api/auth/login")
+def auth_login(req: LoginRequest):
+    users = load_json(USERS_FILE)
+    # Replace dots in email as Firebase keys cannot contain '.'
+    key = req.email.replace(".", ",")
+    
+    if key not in users:
+        # Default admin auto-approval
+        status = "approved" if req.email == "serhatkabais@gmail.com" else "pending"
+        users[key] = {
+            "email": req.email,
+            "name": req.name,
+            "status": status
+        }
+        save_json(USERS_FILE, users)
+    
+    return {"email": req.email, "status": users[key]["status"]}
+
+@app.get("/api/admin/users")
+def get_all_users():
+    users = load_json(USERS_FILE)
+    return {"users": list(users.values()) if isinstance(users, dict) else []}
+
+@app.post("/api/admin/approve")
+def admin_approve(req: ApproveRequest):
+    users = load_json(USERS_FILE)
+    key = req.email.replace(".", ",")
+    if key in users:
+        users[key]["status"] = req.status
+        save_json(USERS_FILE, users)
+        return {"success": True, "status": req.status}
+    raise HTTPException(status_code=404, detail="User not found")
 
 # Serve React static build files if they exist (production mode)
 frontend_dist_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")

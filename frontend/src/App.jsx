@@ -3,6 +3,16 @@ import ReactMarkdown from 'react-markdown';
 import html2pdf from 'html2pdf.js';
 import VirtualInterview from './VirtualInterview';
 import './App.css';
+import { auth, logout } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import AuthScreen from './AuthScreen';
+import PendingScreen from './PendingScreen';
+import AdminPanel from './AdminPanel';
+
+export const API_BASE = window.location.port === '5173' || window.location.hostname === 'localhost' 
+  ? 'http://localhost:8000/api' 
+  : '/api';
+
 
 // SVG Decorative Icons with a Groovy '68 Vibe
 const PeaceIcon = ({ size = 24, color = "currentColor" }) => (
@@ -444,7 +454,7 @@ const CalendarView = ({ trackerData, companies, onSelectCompany }) => {
   );
 };
 
-function App() {
+function MainApp({ user, onLogout }) {
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [currentTab, setCurrentTab] = useState('companies'); // 'companies' or 'rag'
@@ -2261,4 +2271,40 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [authStatus, setAuthStatus] = useState('loading'); // loading, pending, approved, unauthenticated
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        // user is logged into Google, now check our backend
+        fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentUser.email, name: currentUser.displayName })
+        })
+        .then(res => res.json())
+        .then(data => {
+          setUser(currentUser);
+          setAuthStatus(data.status); // 'approved' or 'pending'
+        })
+        .catch(err => {
+          console.error("Auth check error", err);
+          setAuthStatus('unauthenticated');
+        });
+      } else {
+        setUser(null);
+        setAuthStatus('unauthenticated');
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (authStatus === 'loading') return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-yellow)' }}>Yükleniyor...</div>;
+  if (authStatus === 'unauthenticated' || !user) return <AuthScreen onLoginSuccess={() => setAuthStatus('loading')} />;
+  if (authStatus === 'pending') return <PendingScreen user={user} />;
+  
+  return <MainApp user={user} onLogout={() => logout()} />;
+}
+

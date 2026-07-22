@@ -9,7 +9,7 @@ const getValidValue = (envVal, fallbackVal) => {
 };
 
 const firebaseConfig = {
-  apiKey: getValidValue(import.meta.env.VITE_FIREBASE_API_KEY, "AIzaSyBjVUdZxv38d2Ew3togD3J-roNd08b3WPQ"),
+  apiKey: getValidValue(import.meta.env.VITE_FIREBASE_API_KEY, "AIzaSyBjVUdZxv38d2Ew3togD3J-roNdO8b3WPQ"),
   authDomain: getValidValue(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN, "amsterdammeeting-b137e.firebaseapp.com"),
   projectId: getValidValue(import.meta.env.VITE_FIREBASE_PROJECT_ID, "amsterdammeeting-b137e"),
   storageBucket: getValidValue(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET, "amsterdammeeting-b137e.firebasestorage.app"),

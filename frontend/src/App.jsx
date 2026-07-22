@@ -473,6 +473,27 @@ function MainApp({ user, onLogout }) {
   const [ragEditData, setRagEditData] = useState(null);
   const [saveStatus, setSaveStatus] = useState('');
 
+  // Admin & Pending Users State
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.email === 'serhatkabais@gmail.com') {
+      const checkPendingUsers = () => {
+        fetch(`${API_BASE}/admin/users`)
+          .then(res => res.json())
+          .then(data => {
+            const pending = (data.users || []).filter(u => u.status === 'pending');
+            setPendingCount(pending.length);
+          })
+          .catch(err => console.error("Error fetching pending users", err));
+      };
+      checkPendingUsers();
+      const interval = setInterval(checkPendingUsers, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
   // Email Generator State
   const [emailLoading, setEmailLoading] = useState(false);
   const [isGeneratingReply, setIsGeneratingReply] = useState(false);
@@ -1104,6 +1125,49 @@ function MainApp({ user, onLogout }) {
             RAG
           </button>
 
+          {user?.email === 'serhatkabais@gmail.com' && (
+            <button 
+              className="neo-button" 
+              style={{ 
+                backgroundColor: 'var(--accent-orange)', 
+                color: '#000', 
+                fontWeight: 'bold', 
+                border: '2px solid #000',
+                boxShadow: pendingCount > 0 ? '0 0 14px rgba(255, 68, 68, 0.9)' : 'var(--box-shadow-flat)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '0.6rem 1rem'
+              }}
+              onClick={() => setShowAdminPanel(true)}
+            >
+              <span>🛡️ Admin Paneli</span>
+              {pendingCount > 0 && (
+                <span style={{ 
+                  backgroundColor: '#ff2222', 
+                  color: '#ffffff', 
+                  borderRadius: '20px', 
+                  padding: '2px 8px', 
+                  fontSize: '0.75rem', 
+                  fontWeight: '900',
+                  border: '1px solid #fff'
+                }}>
+                  ⚠️ {pendingCount} Bekleyen
+                </span>
+              )}
+            </button>
+          )}
+
+          {onLogout && (
+            <button 
+              className="neo-button" 
+              style={{ backgroundColor: 'transparent', color: 'var(--text-muted)', fontSize: '0.85rem' }}
+              onClick={onLogout}
+            >
+              Çıkış Yap
+            </button>
+          )}
+
           {/* Language Switcher */}
           <div style={{
             display: 'flex',
@@ -1143,6 +1207,21 @@ function MainApp({ user, onLogout }) {
             </button>
           </div>
         </div>
+      {showAdminPanel && (
+        <AdminPanel 
+          onClose={() => {
+            setShowAdminPanel(false);
+            if (user?.email === 'serhatkabais@gmail.com') {
+              fetch(`${API_BASE}/admin/users`)
+                .then(res => res.json())
+                .then(data => {
+                  const pending = (data.users || []).filter(u => u.status === 'pending');
+                  setPendingCount(pending.length);
+                });
+            }
+          }} 
+        />
+      )}
       </header>
 
       {/* Main Content Area */}
